@@ -1,14 +1,14 @@
 import express from "express"
 import cors from "cors"
-import dotenv from "dotenv"
+import config from "./config.js"
+import router from "./router/router.js"
 
 const app = express()
-dotenv.config()
-
 app.use(cors())
 app.use(express.json())
+const PORT = config.PORT || 3000;
 
-const PORT = process.env.PORT || 3000;
+app.use("/api", router);
 
 app.get("/", (req, res) => {
     res.json({ message : "SIH Backend Server is running perfectly"})
