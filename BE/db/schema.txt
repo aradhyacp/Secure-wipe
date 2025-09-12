@@ -1,0 +1,18 @@
+create table users (
+    id uuid primary key default gen_random_uuid() unique,
+    name text not null,
+    email text unique not null,
+    password_hash text not null,
+    product_key text not null unique,
+    created_at timestamp default now()
+);
+
+create table certificates (
+    id uuid primary key,
+    user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    device_name text not null,
+    wipe_date timestamp not null,
+    method text not null,
+    created_at timestamp default now(),
+    hash text not null
+);
