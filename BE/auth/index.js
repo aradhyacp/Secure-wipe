@@ -85,4 +85,32 @@ router.post("/login", async (req, res) => {
 
 });
 
+router.get("/me", async (req, res) => {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+        return res.status(401).json({ message: "Authorization header missing." });
+    }
+    
+    const token = authHeader.split(" ")[1];
+    if (!token) {
+        return res.status(401).json({ message: "Token missing." });
+    }
+
+    try {
+        const decoded = jwt.verify(token, config.JWT_SECRET);
+        const { data: user, error } = await supabase
+            .from('users')
+            .select('id, name, email, productKey')
+            .eq('id', decoded.id)
+            .single();
+        
+        if (error || !user) {
+            return res.status(404).json({ message: "User not found." });
+        }
+        return res.json({ user });
+    } catch (error) {
+        return res.status(401).json({ message: "Invalid token.", error: error.message });
+    }
+});
+
 export default router;
