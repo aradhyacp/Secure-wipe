@@ -4,12 +4,13 @@ import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
 import config from "../config.js";
 import supabase from "../db/index.js";
+import { authMiddleware } from "../middleware/middleware.js";
 
 function generateProductKey() {
-  const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  const alphaNumeric = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
   let randomStr = "";
   for (let i = 0; i < 11; i++) {
-    randomStr += letters.charAt(Math.floor(Math.random() * letters.length));
+    randomStr += alphaNumeric.charAt(Math.floor(Math.random() * alphaNumeric.length));
   }
   return `Secure-${randomStr}-wipe`;
 }
@@ -85,23 +86,12 @@ router.post("/login", async (req, res) => {
 
 });
 
-router.get("/me", async (req, res) => {
-    const authHeader = req.headers.authorization;
-    if (!authHeader) {
-        return res.status(401).json({ message: "Authorization header missing." });
-    }
-    
-    const token = authHeader.split(" ")[1];
-    if (!token) {
-        return res.status(401).json({ message: "Token missing." });
-    }
-
+router.get("/me", authMiddleware, async (req, res) => {
     try {
-        const decoded = jwt.verify(token, config.JWT_SECRET);
         const { data: user, error } = await supabase
             .from('users')
             .select('id, name, email, productKey')
-            .eq('id', decoded.id)
+            .eq('id', req.user.id)
             .single();
         
         if (error || !user) {
