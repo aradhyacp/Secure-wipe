@@ -7,7 +7,8 @@ export function authMiddleware(req, res, next) {
     if (!token) return res.status(401).json({ message: 'Token missing' });
     try {
         const user = jwt.verify(token, config.JWT_SECRET);
-        req.user = user;
+        console.log(user);
+        req.id = user.id;
         next();
     } catch (error) {
         return res.status(403).json({ message: 'Invalid token' });  

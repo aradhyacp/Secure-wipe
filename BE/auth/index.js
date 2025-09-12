@@ -36,12 +36,12 @@ router.post("/signup", async (req, res) => {
         return res.status(500).json({ message: "Error checking existing user.", error: findError.message });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const productKey = generateProductKey();
+    const password_hash = await bcrypt.hash(password, 10);
+    const product_key = generateProductKey();
 
     const { data, error } = await supabase
       .from("users")
-      .insert([{ name, email, passwordHash, productKey }])
+      .insert([{ name, email, password_hash, product_key }])
       .select()
       .single();
 
@@ -74,7 +74,7 @@ router.post("/login", async (req, res) => {
             return res.status(400).json({ message: "Invalid email or password." });
         }
 
-        const valid = await bcrypt.compare(password, user.passwordHash);
+        const valid = await bcrypt.compare(password, user.password_hash);
     if (!valid) {
       return res.status(400).json({ success: false, error: "Invalid email or password" });
     }
@@ -87,11 +87,12 @@ router.post("/login", async (req, res) => {
 });
 
 router.get("/me", authMiddleware, async (req, res) => {
+    const id = req.id;
     try {
         const { data: user, error } = await supabase
             .from('users')
-            .select('id, name, email, productKey')
-            .eq('id', req.user.id)
+            .select('id, name, email, product_key')
+            .eq('id', id)
             .single();
         
         if (error || !user) {

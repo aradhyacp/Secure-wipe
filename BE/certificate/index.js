@@ -48,7 +48,7 @@ router.post("/verify", upload.single("json_file"), async (req, res) => {
     }
 });
 
-router.post("/verify-by-id/:certid", async (req, res) => {
+router.get("/verify-by-id/:certid", async (req, res) => {
     try {
         const { certid } = req.params;
         const { data: certificate, error } = await supabase

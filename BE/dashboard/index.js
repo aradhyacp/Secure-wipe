@@ -5,13 +5,15 @@ import { authMiddleware } from "../middleware/middleware.js";
 
 router.get("/", authMiddleware, async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.id;
     const { data: users, error: usersError } = await supabase
       .from("users")
-      .select("id, name, email, productKey")
+      .select("id, name, email, product_key")
       .eq("id", userId)
       .single();
-
+    
+    console.log(usersError);
+    
     if (usersError || !users) {
       return res.status(404).json({ message: "User not found." });
     }
@@ -41,7 +43,7 @@ router.get("/", authMiddleware, async (req, res) => {
         id: users.id,
         name: users.name,
         email: users.email,
-        productKey: users.productKey,
+        product_key: users.product_key,
       },
       stats,
       certificates: certificates.map((cert) => ({
