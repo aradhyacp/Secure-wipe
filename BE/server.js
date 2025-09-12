@@ -14,6 +14,16 @@ app.get("/", (req, res) => {
     res.json({ message : "SIH Backend Server is running perfectly"})
 })
 
+app.use((err, req, res, next) => {
+  return res.status(400).json({
+    error: "Internal server error",
+  });
+});
+
+app.use((req, res, next) => {
+  res.status(404).json({ message: "Route not found" });
+});
+
 app.listen(PORT,()=>{
     console.log(`Server is running on http://localhost:${PORT}`);
 })
