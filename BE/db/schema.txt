@@ -1,0 +1,24 @@
+create table users (
+    id uuid primary key default gen_random_uuid(),
+    name text not null,
+    email text unique not null,
+    password_hash text not null,
+    product_key text references product_keys(key),
+    created_at timestamp default now()
+);
+
+create table product_keys (
+    key text primary key,
+    assigned_to uuid references users(id),
+    created_at timestamp default now()
+);
+
+create table certificates (
+    id uuid primary key,
+    user_id uuid not null references users(id) on delete cascade,
+    device_name text not null,
+    wipe_date timestamp not null,
+    method text not null,
+    created_at timestamp default now(),
+    hash text not null
+);
