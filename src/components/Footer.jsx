@@ -56,7 +56,7 @@ function Footer() {
         
         <div className="footer-bottom">
           <div>
-            <p>&copy; 2024 SecureWipe. Built for Smart India Hackathon 2024.</p>
+            <p>&copy; 2025 SecureWipe. Built for Smart India Hackathon 2025.</p>
             <p style={{fontSize: '0.875rem', color: '#94A3B8', marginTop: '0.5rem'}}>
               Addressing India's ₹50,000 crore e-waste challenge through secure data sanitization.
             </p>

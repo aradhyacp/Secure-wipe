@@ -1,10 +1,15 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { Shield } from 'lucide-react'
 
 function Header() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [username, setUsername] = useState('')
+  const location = useLocation()
+
+  const isActive = (path) => {
+    return location.pathname === path
+  }
 
   return (
     <header className="header">
@@ -16,9 +21,30 @@ function Header() {
           </Link>
           
           <ul className="nav-links">
-            <li><Link to="/dashboard">Dashboard</Link></li>
-            <li><Link to="/download">Download</Link></li>
-            <li><Link to="/verify">Verify Certificate</Link></li>
+            <li>
+              <Link 
+                to="/dashboard" 
+                className={isActive('/dashboard') ? 'nav-active' : ''}
+              >
+                Dashboard
+              </Link>
+            </li>
+            <li>
+              <Link 
+                to="/download"
+                className={isActive('/download') ? 'nav-active' : ''}
+              >
+                Download
+              </Link>
+            </li>
+            <li>
+              <Link 
+                to="/verify"
+                className={isActive('/verify') ? 'nav-active' : ''}
+              >
+                Verify Certificate
+              </Link>
+            </li>
           </ul>
           
           <div className="nav-auth">

@@ -24,6 +24,19 @@ body {
   position: sticky;
   top: 0;
   z-index: 100;
+/* 
+  position: fixed;       /* stick to top 
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 50;            stay above content 
+  padding: 1rem 0; */
+
+  background: rgba(255, 255, 255, 0.6); /* semi-transparent white */
+  backdrop-filter: blur(10px);          /* blur effect */
+  -webkit-backdrop-filter: blur(10px);  /* Safari support */
+
+  transition: background 0.3s ease;
 }
 
 .nav {
@@ -414,3 +427,21 @@ body {
     flex-direction: column;
   }
 }
+
+/* Active navigation link styling */
+.nav-links a.nav-active {
+  color: #1DB954;
+  position: relative;
+}
+
+.nav-links a.nav-active::after {
+  content: '';
+  position: absolute;
+  bottom: -1.5rem;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #1DB954;
+}
+
+

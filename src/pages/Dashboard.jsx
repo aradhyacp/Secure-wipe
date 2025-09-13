@@ -3,9 +3,9 @@ import { Shield, HardDrive, FileCheck, Key, User, Mail } from 'lucide-react'
 
 function Dashboard() {
   const [userInfo, setUserInfo] = useState({
-    name: 'John Doe',
-    email: 'john.doe@example.com',
-    productKey: 'SW-2024-XXXXX-XXXXX'
+    name: 'Vishal V',
+    email: 'Vishal@example.com',
+    productKey: 'SW-2025-XXXXX-XXXXX'
   })
   
   const [stats, setStats] = useState({
@@ -14,18 +14,18 @@ function Dashboard() {
   })
 
   const [certificates, setCertificates] = useState([
-    { id: 'CERT-001', diskName: 'LAPTOP-DEV-001', date: '15/01/2024', certificateId: 'SW-2024-001-ABC123' },
-    { id: 'CERT-002', diskName: 'SERVER-PROD-02', date: '14/01/2024', certificateId: 'SW-2024-002-DEF456' },
-    { id: 'CERT-003', diskName: 'WORKSTATION-03', date: '13/01/2024', certificateId: 'SW-2024-003-GHI789' },
-    { id: 'CERT-004', diskName: 'LAPTOP-TEST-04', date: '12/01/2024', certificateId: 'SW-2024-004-JKL012' },
-    { id: 'CERT-005', diskName: 'SERVER-DEV-05', date: '11/01/2024', certificateId: 'SW-2024-005-MNO345' },
-    { id: 'CERT-006', diskName: 'DESKTOP-HR-06', date: '10/01/2024', certificateId: 'SW-2024-006-PQR678' },
-    { id: 'CERT-007', diskName: 'LAPTOP-SALES-07', date: '09/01/2024', certificateId: 'SW-2024-007-STU901' },
-    { id: 'CERT-008', diskName: 'SERVER-BACKUP-08', date: '08/01/2024', certificateId: 'SW-2024-008-VWX234' },
-    { id: 'CERT-009', diskName: 'WORKSTATION-09', date: '07/01/2024', certificateId: 'SW-2024-009-YZA567' },
-    { id: 'CERT-010', diskName: 'LAPTOP-FINANCE-10', date: '06/01/2024', certificateId: 'SW-2024-010-BCD890' },
-    { id: 'CERT-011', diskName: 'SERVER-WEB-11', date: '05/01/2024', certificateId: 'SW-2024-011-EFG123' },
-    { id: 'CERT-012', diskName: 'DESKTOP-IT-12', date: '04/01/2024', certificateId: 'SW-2024-012-HIJ456' }
+    { id: 'CERT-001', diskName: 'LAPTOP-DEV-001', date: '15/01/2025', certificateId: 'SW-2025-001-ABC123' },
+    { id: 'CERT-002', diskName: 'SERVER-PROD-02', date: '14/01/2025', certificateId: 'SW-2025-002-DEF456' },
+    { id: 'CERT-003', diskName: 'WORKSTATION-03', date: '13/01/2025', certificateId: 'SW-2025-003-GHI789' },
+    { id: 'CERT-004', diskName: 'LAPTOP-TEST-04', date: '12/01/2025', certificateId: 'SW-2025-004-JKL012' },
+    { id: 'CERT-005', diskName: 'SERVER-DEV-05', date: '11/01/2025', certificateId: 'SW-2025-005-MNO345' },
+    { id: 'CERT-006', diskName: 'DESKTOP-HR-06', date: '10/01/2025', certificateId: 'SW-2025-006-PQR678' },
+    { id: 'CERT-007', diskName: 'LAPTOP-SALES-07', date: '09/01/2025', certificateId: 'SW-2025-007-STU901' },
+    { id: 'CERT-008', diskName: 'SERVER-BACKUP-08', date: '08/01/2025', certificateId: 'SW-2025-008-VWX234' },
+    { id: 'CERT-009', diskName: 'WORKSTATION-09', date: '07/01/2025', certificateId: 'SW-2025-009-YZA567' },
+    { id: 'CERT-010', diskName: 'LAPTOP-FINANCE-10', date: '06/01/2025', certificateId: 'SW-2025-010-BCD890' },
+    { id: 'CERT-011', diskName: 'SERVER-WEB-11', date: '05/01/2025', certificateId: 'SW-2025-011-EFG123' },
+    { id: 'CERT-012', diskName: 'DESKTOP-IT-12', date: '04/01/2025', certificateId: 'SW-2025-012-HIJ456' }
   ])
 
   const [currentPage, setCurrentPage] = useState(1)
@@ -45,7 +45,7 @@ function Dashboard() {
     <div style={{ minHeight: '80vh', padding: '2rem 0' }}>
       <div className="container">
         {/* Header */}
-        <div style={{ marginBottom: '2rem' }}>
+        <div style={{ marginBottom: '2rem' , textAlign: 'center' }}>
           <h1 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>Dashboard</h1>
           <p style={{ color: '#6B7280' }}>Manage your secure data wiping operations</p>
         </div>
