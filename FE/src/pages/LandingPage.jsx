@@ -24,7 +24,7 @@ function LandingPage() {
               <div className="hero-actions">
                 <Link to="/dashboard" className="btn btn-primary">
                   <Zap size={18} />
-                  Start Secure Wipe
+                  Head to Dashboard
                 </Link>
                 <Link to="/verify" className="btn btn-outline">
                   <FileCheck size={18} />
@@ -104,10 +104,10 @@ function LandingPage() {
               <div className="feature-icon">
                 <Zap size={24} />
               </div>
-              <h3>Real-time Monitoring</h3>
+              <h3>Monitor history</h3>
               <p>
-                Live progress tracking with detailed sector-by-sector 
-                sanitization logs and performance metrics.
+                Tracking with detailed sector-by-sector 
+                sanitization list.
               </p>
             </div>
             <div className="feature-card">
@@ -155,10 +155,10 @@ function LandingPage() {
       <section className="stats">
         <div className="container">
           <div className="stats-grid">
-            <div className="stat-item">
+            {/* <div className="stat-item">
               <h3>99.9%</h3>
               <p>Data Destruction Accuracy</p>
-            </div>
+            </div> */}
             <div className="stat-item">
               <h3>1M+</h3>
               <p>Devices Processed</p>
