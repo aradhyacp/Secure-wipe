@@ -1,15 +1,9 @@
-import { useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { Shield } from 'lucide-react'
+import { useAuth } from '../context/AuthContext.jsx'
 
 function Header() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
-  const [username, setUsername] = useState('')
-  const location = useLocation()
-
-  const isActive = (path) => {
-    return location.pathname === path
-  }
+  const { isAuthenticated, user, logout } = useAuth()
 
   return (
     <header className="header">
@@ -21,39 +15,18 @@ function Header() {
           </Link>
           
           <ul className="nav-links">
-            <li>
-              <Link 
-                to="/dashboard" 
-                className={isActive('/dashboard') ? 'nav-active' : ''}
-              >
-                Dashboard
-              </Link>
-            </li>
-            <li>
-              <Link 
-                to="/download"
-                className={isActive('/download') ? 'nav-active' : ''}
-              >
-                Download
-              </Link>
-            </li>
-            <li>
-              <Link 
-                to="/verify"
-                className={isActive('/verify') ? 'nav-active' : ''}
-              >
-                Verify Certificate
-              </Link>
-            </li>
+            <li><Link to="/dashboard">Dashboard</Link></li>
+            <li><Link to="/download">Download</Link></li>
+            <li><Link to="/verify">Verify Certificate</Link></li>
           </ul>
           
           <div className="nav-auth">
-            {isLoggedIn ? (
+            {isAuthenticated ? (
               <>
-                <span>Welcome, {username}</span>
+                <span>Welcome, {user?.name || user?.email || 'User'}</span>
                 <button 
                   className="btn btn-outline"
-                  onClick={() => setIsLoggedIn(false)}
+                  onClick={logout}
                 >
                   Logout
                 </button>

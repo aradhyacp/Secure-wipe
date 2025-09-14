@@ -1,193 +1,173 @@
-import { useState, useEffect } from 'react'
-import { Shield, HardDrive, FileCheck, Key, User, Mail } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
+import { Shield, Monitor, HardDrive, FileCheck, Zap, AlertTriangle, CheckCircle } from 'lucide-react'
 
 function Dashboard() {
-  const [userInfo, setUserInfo] = useState({
-    name: 'Vishal V',
-    email: 'Vishal@example.com',
-    productKey: 'SW-2025-XXXXX-XXXXX'
-  })
-  
-  const [stats, setStats] = useState({
-    totalDisksWiped: 15,
-    certificatesGenerated: 12
-  })
-
-  const [certificates, setCertificates] = useState([
-    { id: 'CERT-001', diskName: 'LAPTOP-DEV-001', date: '15/01/2025', certificateId: 'SW-2025-001-ABC123' },
-    { id: 'CERT-002', diskName: 'SERVER-PROD-02', date: '14/01/2025', certificateId: 'SW-2025-002-DEF456' },
-    { id: 'CERT-003', diskName: 'WORKSTATION-03', date: '13/01/2025', certificateId: 'SW-2025-003-GHI789' },
-    { id: 'CERT-004', diskName: 'LAPTOP-TEST-04', date: '12/01/2025', certificateId: 'SW-2025-004-JKL012' },
-    { id: 'CERT-005', diskName: 'SERVER-DEV-05', date: '11/01/2025', certificateId: 'SW-2025-005-MNO345' },
-    { id: 'CERT-006', diskName: 'DESKTOP-HR-06', date: '10/01/2025', certificateId: 'SW-2025-006-PQR678' },
-    { id: 'CERT-007', diskName: 'LAPTOP-SALES-07', date: '09/01/2025', certificateId: 'SW-2025-007-STU901' },
-    { id: 'CERT-008', diskName: 'SERVER-BACKUP-08', date: '08/01/2025', certificateId: 'SW-2025-008-VWX234' },
-    { id: 'CERT-009', diskName: 'WORKSTATION-09', date: '07/01/2025', certificateId: 'SW-2025-009-YZA567' },
-    { id: 'CERT-010', diskName: 'LAPTOP-FINANCE-10', date: '06/01/2025', certificateId: 'SW-2025-010-BCD890' },
-    { id: 'CERT-011', diskName: 'SERVER-WEB-11', date: '05/01/2025', certificateId: 'SW-2025-011-EFG123' },
-    { id: 'CERT-012', diskName: 'DESKTOP-IT-12', date: '04/01/2025', certificateId: 'SW-2025-012-HIJ456' }
-  ])
-
-  const [currentPage, setCurrentPage] = useState(1)
-  const certificatesPerPage = 10
-
-  // Calculate pagination
-  const indexOfLastCertificate = currentPage * certificatesPerPage
-  const indexOfFirstCertificate = indexOfLastCertificate - certificatesPerPage
-  const currentCertificates = certificates.slice(indexOfFirstCertificate, indexOfLastCertificate)
-  const totalPages = Math.ceil(certificates.length / certificatesPerPage)
-
-  const handlePageChange = (pageNumber) => {
-    setCurrentPage(pageNumber)
-  }
+  const { user } = useAuth()
 
   return (
-    <div style={{ minHeight: '80vh', padding: '2rem 0' }}>
+    <div style={{ padding: '2rem 0', minHeight: '70vh' }}>
       <div className="container">
-        {/* Header */}
-        <div style={{ marginBottom: '2rem' , textAlign: 'center' }}>
-          <h1 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>Dashboard</h1>
-          <p style={{ color: '#6B7280' }}>Manage your secure data wiping operations</p>
+        {/* Welcome Section */}
+        <div style={{ marginBottom: '2rem' }}>
+          <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>
+            Welcome back, <span style={{ color: '#1DB954' }}>{user?.name}</span>
+          </h1>
+          <p style={{ color: '#6B7280', fontSize: '1.125rem' }}>
+            Secure data wiping dashboard - Manage your sanitization tasks
+          </p>
         </div>
 
-        {/* User Info Section */}
-        <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: '1rem', padding: '1.5rem', marginBottom: '2rem' }}>
-          <h2 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1rem', display: 'flex', alignItems: 'center' }}>
-            <User size={20} style={{ marginRight: '0.5rem', color: '#1DB954' }} />
-            User Information
-          </h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-              <User size={18} style={{ marginRight: '0.75rem', color: '#6B7280' }} />
-              <div>
-                <p style={{ fontSize: '0.875rem', color: '#6B7280' }}>Username</p>
-                <p style={{ fontWeight: '500' }}>{userInfo.name}</p>
-              </div>
+        {/* Quick Stats */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+          gap: '1.5rem',
+          marginBottom: '3rem'
+        }}>
+          <div className="feature-card" style={{ textAlign: 'left', padding: '1.5rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '0.5rem' }}>
+              <HardDrive size={20} style={{ color: '#1DB954', marginRight: '0.5rem' }} />
+              <h3 style={{ fontSize: '1rem', margin: 0 }}>Devices Processed</h3>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-              <Mail size={18} style={{ marginRight: '0.75rem', color: '#6B7280' }} />
-              <div>
-                <p style={{ fontSize: '0.875rem', color: '#6B7280' }}>Email</p>
-                <p style={{ fontWeight: '500' }}>{userInfo.email}</p>
-              </div>
+            <p style={{ fontSize: '2rem', fontWeight: 'bold', margin: 0, color: '#1DB954' }}>0</p>
+          </div>
+
+          <div className="feature-card" style={{ textAlign: 'left', padding: '1.5rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '0.5rem' }}>
+              <FileCheck size={20} style={{ color: '#1DB954', marginRight: '0.5rem' }} />
+              <h3 style={{ fontSize: '1rem', margin: 0 }}>Certificates Issued</h3>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-              <Key size={18} style={{ marginRight: '0.75rem', color: '#6B7280' }} />
-              <div>
-                <p style={{ fontSize: '0.875rem', color: '#6B7280' }}>Product Key</p>
-                <p style={{ fontWeight: '500', fontFamily: 'monospace' }}>{userInfo.productKey}</p>
-              </div>
+            <p style={{ fontSize: '2rem', fontWeight: 'bold', margin: 0, color: '#1DB954' }}>0</p>
+          </div>
+
+          <div className="feature-card" style={{ textAlign: 'left', padding: '1.5rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '0.5rem' }}>
+              <Shield size={20} style={{ color: '#1DB954', marginRight: '0.5rem' }} />
+              <h3 style={{ fontSize: '1rem', margin: 0 }}>Active Sessions</h3>
             </div>
+            <p style={{ fontSize: '2rem', fontWeight: 'bold', margin: 0, color: '#1DB954' }}>0</p>
+          </div>
+
+          <div className="feature-card" style={{ textAlign: 'left', padding: '1.5rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '0.5rem' }}>
+              <CheckCircle size={20} style={{ color: '#1DB954', marginRight: '0.5rem' }} />
+              <h3 style={{ fontSize: '1rem', margin: 0 }}>Success Rate</h3>
+            </div>
+            <p style={{ fontSize: '2rem', fontWeight: 'bold', margin: 0, color: '#1DB954' }}>--</p>
           </div>
         </div>
 
-        {/* Stats Section */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
-          <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: '1rem', padding: '1.5rem', textAlign: 'center' }}>
-            <div style={{ background: '#DCFCE7', color: '#1DB954', width: '3rem', height: '3rem', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem' }}>
-              <HardDrive size={24} />
+        {/* Main Actions */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+          gap: '2rem',
+          marginBottom: '3rem'
+        }}>
+          {/* Start New Wipe */}
+          <div className="feature-card" style={{ padding: '2rem' }}>
+            <div className="feature-icon" style={{ margin: '0 0 1rem 0' }}>
+              <Zap size={24} />
             </div>
-            <h3 style={{ fontSize: '2rem', fontWeight: 'bold', color: '#1DB954', marginBottom: '0.5rem' }}>
-              {stats.totalDisksWiped}
-            </h3>
-            <p style={{ color: '#6B7280', fontWeight: '500' }}>Total Disks Wiped</p>
+            <h3 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Start Secure Wipe</h3>
+            <p style={{ color: '#6B7280', marginBottom: '1.5rem' }}>
+              Begin a new secure data sanitization process with NIST-compliant methods
+            </p>
+            <button className="btn btn-primary" style={{ width: '100%' }}>
+              <Monitor size={18} />
+              Launch Wipe Tool
+            </button>
           </div>
-          
-          <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: '1rem', padding: '1.5rem', textAlign: 'center' }}>
-            <div style={{ background: '#DCFCE7', color: '#1DB954', width: '3rem', height: '3rem', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem' }}>
+
+          {/* Verify Certificate */}
+          <div className="feature-card" style={{ padding: '2rem' }}>
+            <div className="feature-icon" style={{ margin: '0 0 1rem 0' }}>
               <FileCheck size={24} />
             </div>
-            <h3 style={{ fontSize: '2rem', fontWeight: 'bold', color: '#1DB954', marginBottom: '0.5rem' }}>
-              {stats.certificatesGenerated}
-            </h3>
-            <p style={{ color: '#6B7280', fontWeight: '500' }}>Certificates Generated</p>
+            <h3 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Certificate Verification</h3>
+            <p style={{ color: '#6B7280', marginBottom: '1.5rem' }}>
+              Verify the authenticity of data sanitization certificates
+            </p>
+            <Link to="/verify" className="btn btn-outline" style={{ width: '100%', textAlign: 'center' }}>
+              <Shield size={18} />
+              Verify Certificate
+            </Link>
           </div>
         </div>
 
-        {/* Certificates Table */}
-        <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: '1rem', overflow: 'hidden' }}>
-          <div style={{ padding: '1.5rem', borderBottom: '1px solid #E5E7EB' }}>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: '600', display: 'flex', alignItems: 'center' }}>
-              <Shield size={20} style={{ marginRight: '0.5rem', color: '#1DB954' }} />
-              Certificate History
-            </h2>
+        {/* Recent Activity */}
+        <div style={{ marginBottom: '3rem' }}>
+          <h2 style={{ fontSize: '1.875rem', fontWeight: 'bold', marginBottom: '1rem' }}>Recent Activity</h2>
+          <div className="feature-card" style={{ padding: '2rem', textAlign: 'center' }}>
+            <AlertTriangle size={48} style={{ color: '#F59E0B', marginBottom: '1rem' }} />
+            <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem', color: '#F59E0B' }}>No Recent Activity</h3>
+            <p style={{ color: '#6B7280' }}>
+              Start your first secure wipe to see activity logs and certificates here
+            </p>
           </div>
-          
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr style={{ background: '#F9FAFB', borderBottom: '1px solid #E5E7EB' }}>
-                  <th style={{ padding: '0.75rem 1rem', textAlign: 'left', fontWeight: '500', color: '#6B7280' }}>Disk Name Wiped</th>
-                  <th style={{ padding: '0.75rem 1rem', textAlign: 'left', fontWeight: '500', color: '#6B7280' }}>Date</th>
-                  <th style={{ padding: '0.75rem 1rem', textAlign: 'left', fontWeight: '500', color: '#6B7280' }}>Certificate ID</th>
-                </tr>
-              </thead>
-              <tbody>
-                {currentCertificates.map((cert, index) => (
-                  <tr key={cert.id} style={{ borderBottom: '1px solid #F3F4F6' }}>
-                    <td style={{ padding: '0.75rem 1rem', fontWeight: '500' }}>{cert.diskName}</td>
-                    <td style={{ padding: '0.75rem 1rem', color: '#6B7280' }}>{cert.date}</td>
-                    <td style={{ padding: '0.75rem 1rem', fontFamily: 'monospace', fontSize: '0.875rem', color: '#1DB954' }}>{cert.certificateId}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+        </div>
 
-          {/* Pagination */}
-          <div style={{ padding: '1rem 1.5rem', borderTop: '1px solid #E5E7EB', display: 'flex', justifyContent: 'between', alignItems: 'center' }}>
-            <div style={{ color: '#6B7280', fontSize: '0.875rem' }}>
-              Showing {indexOfFirstCertificate + 1} to {Math.min(indexOfLastCertificate, certificates.length)} of {certificates.length} certificates
-            </div>
-            <div style={{ display: 'flex', gap: '0.25rem' }}>
-              <button
-                onClick={() => handlePageChange(currentPage - 1)}
-                disabled={currentPage === 1}
-                style={{
-                  padding: '0.5rem 0.75rem',
-                  border: '1px solid #D1D5DB',
-                  borderRadius: '0.375rem',
-                  background: currentPage === 1 ? '#F9FAFB' : 'white',
-                  color: currentPage === 1 ? '#9CA3AF' : '#374151',
-                  cursor: currentPage === 1 ? 'not-allowed' : 'pointer'
-                }}
-              >
-                Previous
-              </button>
-              
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                <button
-                  key={page}
-                  onClick={() => handlePageChange(page)}
-                  style={{
-                    padding: '0.5rem 0.75rem',
-                    border: '1px solid #D1D5DB',
-                    borderRadius: '0.375rem',
-                    background: currentPage === page ? '#1DB954' : 'white',
-                    color: currentPage === page ? 'white' : '#374151',
-                    cursor: 'pointer',
-                    fontWeight: currentPage === page ? '600' : '400'
-                  }}
-                >
-                  {page}
-                </button>
-              ))}
-              
-              <button
-                onClick={() => handlePageChange(currentPage + 1)}
-                disabled={currentPage === totalPages}
-                style={{
-                  padding: '0.5rem 0.75rem',
-                  border: '1px solid #D1D5DB',
-                  borderRadius: '0.375rem',
-                  background: currentPage === totalPages ? '#F9FAFB' : 'white',
-                  color: currentPage === totalPages ? '#9CA3AF' : '#374151',
-                  cursor: currentPage === totalPages ? 'not-allowed' : 'pointer'
-                }}
-              >
-                Next
-              </button>
-            </div>
+        {/* Quick Links */}
+        <div style={{
+          background: '#F8FAFC',
+          padding: '2rem',
+          borderRadius: '1rem',
+          border: '1px solid #E5E7EB'
+        }}>
+          <h3 style={{ fontSize: '1.25rem', fontWeight: 'bold', marginBottom: '1rem' }}>Quick Links</h3>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+            gap: '1rem'
+          }}>
+            <Link to="/download" style={{
+              display: 'flex',
+              alignItems: 'center',
+              padding: '0.75rem',
+              background: 'white',
+              borderRadius: '0.5rem',
+              textDecoration: 'none',
+              color: '#374151',
+              border: '1px solid #E5E7EB',
+              transition: 'all 0.2s'
+            }} onMouseOver={(e) => e.target.style.borderColor = '#1DB954'} 
+               onMouseOut={(e) => e.target.style.borderColor = '#E5E7EB'}>
+              <Monitor size={16} style={{ marginRight: '0.5rem' }} />
+              Download Software
+            </Link>
+            
+            <a href="#" style={{
+              display: 'flex',
+              alignItems: 'center',
+              padding: '0.75rem',
+              background: 'white',
+              borderRadius: '0.5rem',
+              textDecoration: 'none',
+              color: '#374151',
+              border: '1px solid #E5E7EB',
+              transition: 'all 0.2s'
+            }} onMouseOver={(e) => e.target.style.borderColor = '#1DB954'} 
+               onMouseOut={(e) => e.target.style.borderColor = '#E5E7EB'}>
+              <FileCheck size={16} style={{ marginRight: '0.5rem' }} />
+              Documentation
+            </a>
+            
+            <a href="#" style={{
+              display: 'flex',
+              alignItems: 'center',
+              padding: '0.75rem',
+              background: 'white',
+              borderRadius: '0.5rem',
+              textDecoration: 'none',
+              color: '#374151',
+              border: '1px solid #E5E7EB',
+              transition: 'all 0.2s'
+            }} onMouseOver={(e) => e.target.style.borderColor = '#1DB954'} 
+               onMouseOut={(e) => e.target.style.borderColor = '#E5E7EB'}>
+              <Shield size={16} style={{ marginRight: '0.5rem' }} />
+              Support Center
+            </a>
           </div>
         </div>
       </div>

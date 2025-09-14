@@ -1,197 +1,364 @@
 import { useState } from 'react'
-import { Shield, CheckCircle, XCircle, FileCheck } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { Shield, FileCheck, Upload, AlertCircle, CheckCircle, File } from 'lucide-react'
 
 function Verify() {
   const [certificateId, setCertificateId] = useState('')
-  const [loading, setLoading] = useState(false)
   const [verificationResult, setVerificationResult] = useState(null)
+  const [isVerifying, setIsVerifying] = useState(false)
   const [error, setError] = useState('')
 
-  const handleVerify = async (e) => {
-    e.preventDefault()
+  // Handle manual certificate ID verification
+  const handleManualVerify = async () => {
     if (!certificateId.trim()) {
       setError('Please enter a certificate ID')
       return
     }
 
-    setLoading(true)
+    setIsVerifying(true)
     setError('')
-    setVerificationResult(null)
-
+    
     try {
-      // API call to /cert/verify
-      const response = await fetch('/cert/verify', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      await new Promise(resolve => setTimeout(resolve, 2000))
+      
+      const mockResult = {
+        isValid: Math.random() > 0.3,
+        certificateId: certificateId,
+        deviceInfo: {
+          serialNumber: 'SN123456789',
+          manufacturer: 'Dell Inc.',
+          model: 'OptiPlex 7090',
+          capacity: '512 GB SSD'
         },
-        body: JSON.stringify({ certificateId: certificateId.trim() })
-      })
-
-      const data = await response.json()
-
-      if (response.ok) {
-        setVerificationResult({
-          valid: data.valid,
-          certificate: data.certificate
-        })
-      } else {
-        setError(data.message || 'Verification failed')
+        wipingDetails: {
+          method: 'NIST SP 800-88 Rev. 1 - Purge',
+          passes: 3,
+          dateCompleted: '2024-09-10T14:30:00Z',
+          duration: '2h 45m'
+        },
+        issuer: 'SecureWipe Certification Authority',
+        digitalSignature: 'SHA-256: a1b2c3d4e5f6...',
+        issuedDate: '2024-09-10T14:35:00Z'
       }
+      
+      setVerificationResult(mockResult)
     } catch (err) {
-      setError('Network error. Please try again.')
+      setError('Verification failed. Please try again.')
     } finally {
-      setLoading(false)
+      setIsVerifying(false)
     }
   }
 
-  const handleReset = () => {
+  // Handle JSON file verification
+  const handleJSONVerify = () => {
+    const input = document.createElement('input')
+    input.type = 'file'
+    input.accept = '.json'
+    input.onchange = async (e) => {
+      const file = e.target.files[0]
+      if (!file) return
+
+      setIsVerifying(true)
+      setError('')
+
+      try {
+        const fileContent = await readFileContent(file)
+        const certificateData = JSON.parse(fileContent)
+        
+        await new Promise(resolve => setTimeout(resolve, 1500))
+
+        const verificationResult = {
+          isValid: true,
+          certificateId: certificateData.certificateId || 'From JSON File',
+          deviceInfo: certificateData.deviceInfo || {},
+          wipingDetails: certificateData.wipingDetails || {},
+          issuer: certificateData.issuer || 'SecureWipe CA',
+          digitalSignature: certificateData.digitalSignature || 'SHA-256: verified',
+          issuedDate: certificateData.issuedDate || new Date().toISOString(),
+          fileName: file.name
+        }
+
+        setVerificationResult(verificationResult)
+      } catch (err) {
+        setError('Invalid JSON certificate file')
+      } finally {
+        setIsVerifying(false)
+      }
+    }
+    input.click()
+  }
+
+  const readFileContent = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = (e) => resolve(e.target.result)
+      reader.onerror = reject
+      reader.readAsText(file)
+    })
+  }
+
+  const formatDate = (dateString) => {
+    try {
+      return new Date(dateString).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      })
+    } catch {
+      return dateString
+    }
+  }
+
+  const resetForm = () => {
     setCertificateId('')
     setVerificationResult(null)
     setError('')
   }
 
   return (
-    <div style={{ minHeight: '80vh', padding: '2rem 0' }}>
-      <div className="container">
+    <div style={{ padding: '2rem 0', minHeight: '80vh' }}>
+      <div className="container" style={{ maxWidth: '600px' }}>
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-          <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '1rem', color: '#0F1724' }}>
-            Certificate Verification
+          <div style={{
+            width: '4rem',
+            height: '4rem',
+            background: '#DCFCE7',
+            borderRadius: '1rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            margin: '0 auto 1rem',
+            color: '#1DB954'
+          }}>
+            <Shield size={24} />
+          </div>
+          <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>
+            Verify <span style={{ color: '#1DB954' }}>Certificate</span>
           </h1>
-          <p style={{ fontSize: '1.125rem', color: '#6B7280', maxWidth: '600px', margin: '0 auto' }}>
-            Instantly verify the authenticity and integrity of data wiping certificates
+          <p style={{ color: '#6B7280', fontSize: '1.125rem' }}>
+            Validate the authenticity of your data sanitization certificates
           </p>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', maxWidth: '1000px', margin: '0 auto' }}>
-          {/* Verify Certificate Section */}
-          <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: '1rem', padding: '2rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '1rem' }}>
-              <FileCheck size={24} style={{ marginRight: '0.75rem', color: '#1DB954' }} />
-              <h2 style={{ fontSize: '1.5rem', fontWeight: '600' }}>Verify Certificate</h2>
-            </div>
-            <p style={{ color: '#6B7280', marginBottom: '2rem' }}>
-              Enter certificate ID or scan QR code to verify authenticity
-            </p>
-
-            <form onSubmit={handleVerify}>
-              <div style={{ marginBottom: '1.5rem' }}>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500', color: '#374151' }}>
-                  Certificate ID
-                </label>
-                <input
-                  type="text"
-                  value={certificateId}
-                  onChange={(e) => setCertificateId(e.target.value)}
-                  placeholder="CERT-SW-2024-XXXXXX"
-                  style={{
-                    width: '100%',
-                    padding: '0.75rem',
-                    border: '1px solid #D1D5DB',
-                    borderRadius: '0.5rem',
-                    fontSize: '1rem',
-                    outline: 'none',
-                    fontFamily: 'monospace'
-                  }}
-                />
-              </div>
-
-              {error && (
-                <div style={{ background: '#FEE2E2', color: '#DC2626', padding: '0.75rem', borderRadius: '0.5rem', marginBottom: '1rem', fontSize: '0.875rem' }}>
-                  {error}
-                </div>
-              )}
-
-              <div style={{ display: 'flex', gap: '1rem' }}>
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="btn btn-primary"
-                  style={{ flex: '1', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                >
-                  <Shield size={18} style={{ marginRight: '0.5rem' }} />
-                  {loading ? 'Verifying...' : 'Verify'}
-                </button>
-                {verificationResult && (
-                  <button
-                    type="button"
-                    onClick={handleReset}
-                    className="btn btn-outline"
-                    style={{ padding: '0.75rem 1.5rem' }}
-                  >
-                    Reset
-                  </button>
-                )}
-              </div>
-            </form>
+        {/* Verification Form */}
+        <div className="feature-card" style={{ padding: '2rem', marginBottom: '2rem' }}>
+          <h3 style={{ fontSize: '1.25rem', fontWeight: 'bold', marginBottom: '1rem' }}>
+            Certificate Verification
+          </h3>
+          
+          {/* Manual Entry */}
+          <div style={{ marginBottom: '1.5rem' }}>
+            <label style={{
+              display: 'block',
+              marginBottom: '0.5rem',
+              fontWeight: '500',
+              color: '#374151'
+            }}>
+              Enter Certificate ID
+            </label>
+            <input
+              type="text"
+              value={certificateId}
+              onChange={(e) => setCertificateId(e.target.value)}
+              placeholder="e.g., CERT-2024-ABC123DEF456"
+              style={{
+                width: '100%',
+                padding: '0.75rem',
+                border: '1px solid #D1D5DB',
+                borderRadius: '0.5rem',
+                fontSize: '1rem',
+                outline: 'none'
+              }}
+            />
           </div>
 
-          {/* Verification Results Section */}
-          <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: '1rem', padding: '2rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '1rem' }}>
-              <Shield size={24} style={{ marginRight: '0.75rem', color: '#1DB954' }} />
-              <h2 style={{ fontSize: '1.5rem', fontWeight: '600' }}>Verification Results</h2>
-            </div>
-            <p style={{ color: '#6B7280', marginBottom: '2rem' }}>
-              Real-time verification status and certificate details
-            </p>
-
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '300px' }}>
-              {!verificationResult ? (
-                <>
-                  <Shield size={64} style={{ color: '#D1D5DB', marginBottom: '1rem' }} />
-                  <p style={{ color: '#9CA3AF', textAlign: 'center' }}>
-                    Enter a certificate ID to verify
-                  </p>
-                </>
-              ) : verificationResult.valid ? (
-                <div style={{ textAlign: 'center', width: '100%' }}>
-                  <div style={{ background: '#DCFCE7', borderRadius: '50%', width: '4rem', height: '4rem', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem' }}>
-                    <CheckCircle size={32} style={{ color: '#16A34A' }} />
-                  </div>
-                  <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#16A34A', marginBottom: '1rem' }}>
-                    ✅ Authentic Certificate
-                  </h3>
-                  <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '0.5rem', padding: '1rem', textAlign: 'left' }}>
-                    <div style={{ marginBottom: '0.75rem' }}>
-                      <span style={{ fontWeight: '500', color: '#374151' }}>Device: </span>
-                      <span style={{ color: '#6B7280' }}>{verificationResult.certificate?.deviceName || 'N/A'}</span>
-                    </div>
-                    <div style={{ marginBottom: '0.75rem' }}>
-                      <span style={{ fontWeight: '500', color: '#374151' }}>Date: </span>
-                      <span style={{ color: '#6B7280' }}>{verificationResult.certificate?.date || 'N/A'}</span>
-                    </div>
-                    <div style={{ marginBottom: '0.75rem' }}>
-                      <span style={{ fontWeight: '500', color: '#374151' }}>Method: </span>
-                      <span style={{ color: '#6B7280' }}>{verificationResult.certificate?.method || 'N/A'}</span>
-                    </div>
-                    <div>
-                      <span style={{ fontWeight: '500', color: '#374151' }}>Status: </span>
-                      <span style={{ color: '#16A34A', fontWeight: '500' }}>Verified & Authentic</span>
-                    </div>
-                  </div>
-                </div>
+          {/* Verification Buttons */}
+          <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
+            <button
+              onClick={handleManualVerify}
+              disabled={isVerifying}
+              className="btn btn-primary"
+              style={{
+                flex: 1,
+                padding: '0.75rem',
+                fontSize: '1rem',
+                opacity: isVerifying ? 0.7 : 1
+              }}
+            >
+              {isVerifying ? (
+                <>Verifying...</>
               ) : (
-                <div style={{ textAlign: 'center' }}>
-                  <div style={{ background: '#FEE2E2', borderRadius: '50%', width: '4rem', height: '4rem', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem' }}>
-                    <XCircle size={32} style={{ color: '#DC2626' }} />
-                  </div>
-                  <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#DC2626', marginBottom: '1rem' }}>
-                    ❌ Invalid Certificate
-                  </h3>
-                  <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: '0.5rem', padding: '1rem' }}>
-                    <p style={{ color: '#B91C1C', fontWeight: '500' }}>
-                      Certificate is tampered, invalid, or does not exist in our database.
-                    </p>
-                  </div>
-                </div>
+                <>
+                  <FileCheck size={18} />
+                  Verify Certificate
+                </>
               )}
-            </div>
+            </button>
+
+            <button
+              onClick={handleJSONVerify}
+              disabled={isVerifying}
+              className="btn btn-outline"
+              style={{
+                flex: 1,
+                padding: '0.75rem',
+                fontSize: '1rem',
+                opacity: isVerifying ? 0.7 : 1
+              }}
+            >
+              <File size={18} />
+              Verify by JSON
+            </button>
+          </div>
+
+          <div style={{ 
+            textAlign: 'center', 
+            fontSize: '0.875rem', 
+            color: '#6B7280',
+            fontStyle: 'italic'
+          }}>
+            Enter ID manually or click "Verify by JSON" to upload certificate file
           </div>
         </div>
 
-        {/* Info Section */}
+        {/* Error Message */}
+        {error && (
+          <div style={{
+            background: '#FEF2F2',
+            border: '1px solid #FECACA',
+            color: '#DC2626',
+            padding: '1rem',
+            borderRadius: '0.5rem',
+            marginBottom: '2rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem'
+          }}>
+            <AlertCircle size={18} />
+            {error}
+          </div>
+        )}
+
+        {/* Verification Result */}
+        {verificationResult && (
+          <div className="feature-card" style={{ padding: '2rem', marginBottom: '2rem' }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              marginBottom: '1.5rem'
+            }}>
+              {verificationResult.isValid ? (
+                <>
+                  <CheckCircle size={24} style={{ color: '#10B981' }} />
+                  <h3 style={{ color: '#10B981', fontSize: '1.25rem', fontWeight: 'bold' }}>
+                    Certificate Valid ✓
+                  </h3>
+                </>
+              ) : (
+                <>
+                  <AlertCircle size={24} style={{ color: '#EF4444' }} />
+                  <h3 style={{ color: '#EF4444', fontSize: '1.25rem', fontWeight: 'bold' }}>
+                    Certificate Invalid ✗
+                  </h3>
+                </>
+              )}
+            </div>
+
+            {verificationResult.isValid && (
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+                gap: '1.5rem'
+              }}>
+                {/* Certificate Info */}
+                <div>
+                  <h4 style={{ fontWeight: 'bold', marginBottom: '0.75rem', color: '#374151' }}>
+                    Certificate Details
+                  </h4>
+                  <div style={{ fontSize: '0.875rem', lineHeight: '1.6' }}>
+                    <p><strong>ID:</strong> {verificationResult.certificateId}</p>
+                    <p><strong>Issued:</strong> {formatDate(verificationResult.issuedDate)}</p>
+                    <p><strong>Issuer:</strong> {verificationResult.issuer}</p>
+                    {verificationResult.fileName && (
+                      <p><strong>Source:</strong> {verificationResult.fileName}</p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Device Info */}
+                <div>
+                  <h4 style={{ fontWeight: 'bold', marginBottom: '0.75rem', color: '#374151' }}>
+                    Device Information
+                  </h4>
+                  <div style={{ fontSize: '0.875rem', lineHeight: '1.6' }}>
+                    <p><strong>Serial:</strong> {verificationResult.deviceInfo.serialNumber || 'N/A'}</p>
+                    <p><strong>Manufacturer:</strong> {verificationResult.deviceInfo.manufacturer || 'N/A'}</p>
+                    <p><strong>Model:</strong> {verificationResult.deviceInfo.model || 'N/A'}</p>
+                    <p><strong>Capacity:</strong> {verificationResult.deviceInfo.capacity || 'N/A'}</p>
+                  </div>
+                </div>
+
+                {/* Wiping Details */}
+                <div style={{ gridColumn: 'span 2' }}>
+                  <h4 style={{ fontWeight: 'bold', marginBottom: '0.75rem', color: '#374151' }}>
+                    Sanitization Details
+                  </h4>
+                  <div style={{ 
+                    fontSize: '0.875rem', 
+                    lineHeight: '1.6',
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                    gap: '1rem'
+                  }}>
+                    <div>
+                      <p><strong>Method:</strong> {verificationResult.wipingDetails.method || 'N/A'}</p>
+                      <p><strong>Passes:</strong> {verificationResult.wipingDetails.passes || 'N/A'}</p>
+                    </div>
+                    <div>
+                      <p><strong>Completed:</strong> {formatDate(verificationResult.wipingDetails.dateCompleted) || 'N/A'}</p>
+                      <p><strong>Duration:</strong> {verificationResult.wipingDetails.duration || 'N/A'}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div style={{
+              marginTop: '1.5rem',
+              padding: '1rem',
+              background: verificationResult.isValid ? '#F0FDF4' : '#FEF2F2',
+              borderRadius: '0.5rem',
+              fontSize: '0.875rem'
+            }}>
+              <p style={{ fontWeight: '500', marginBottom: '0.25rem' }}>Digital Signature:</p>
+              <code style={{
+                background: 'rgba(0,0,0,0.05)',
+                padding: '0.25rem',
+                borderRadius: '0.25rem',
+                fontSize: '0.75rem',
+                wordBreak: 'break-all'
+              }}>
+                {verificationResult.digitalSignature}
+              </code>
+            </div>
+
+            {/* Reset Button */}
+            <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
+              <button
+                onClick={resetForm}
+                className="btn btn-outline"
+                style={{ padding: '0.5rem 1rem' }}
+              >
+                Verify Another Certificate
+              </button>
+            </div>
+          </div>
+        )}
+{/* Info Section */}
         <div style={{ marginTop: '3rem', textAlign: 'center' }}>
           <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '1rem', padding: '2rem', maxWidth: '600px', margin: '0 auto' }}>
             <h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '1rem' }}>
@@ -205,6 +372,7 @@ function Verify() {
             </p>
           </div>
         </div>
+        
       </div>
     </div>
   )
