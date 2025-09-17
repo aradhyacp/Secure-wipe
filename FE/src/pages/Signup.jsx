@@ -59,36 +59,54 @@ function Signup() {
     return newErrors
   }
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    
-    const newErrors = validateForm()
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors)
-      return
+const handleSubmit = async (e) => {
+  e.preventDefault()
+
+  const newErrors = validateForm()
+  if (Object.keys(newErrors).length > 0) {
+    setErrors(newErrors)
+    return
+  }
+
+  setIsLoading(true)
+
+  try {
+    const response = await fetch('https://secure-wipe-2gyy.onrender.com/api/auth/signup', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+      }),
+    })
+
+    if (!response.ok) {
+      throw new Error('Network response was not ok')
     }
-    
-    setIsLoading(true)
-    
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
-      // Sign up user
+    const data = await response.json()
+
+    if (data.success) {
+      localStorage.setItem('userid', data.userid)
+      localStorage.setItem('token', data.token)
       signup({
         name: formData.name,
         email: formData.email,
-        id: Date.now() // Simple ID generation
+        id: data.userid,
       })
-      
-      // Redirect to dashboard
       navigate('/dashboard')
-    } catch (error) {
+    } else {
       setErrors({ submit: 'Signup failed. Please try again.' })
-    } finally {
-      setIsLoading(false)
     }
+  } catch (error) {
+    setErrors({ submit: 'Signup failed. Please try again.' })
+  } finally {
+    setIsLoading(false)
   }
+}
+
 
   return (
     <div style={{ 
