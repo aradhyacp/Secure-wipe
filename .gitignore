@@ -21,6 +21,7 @@ out/
 logs/
 *.log
 *.log.*
+*/.vite
 
 # OS-specific
 .DS_Store

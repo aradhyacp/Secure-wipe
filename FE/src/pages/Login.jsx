@@ -53,37 +53,54 @@ function Login() {
     return newErrors
   }
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    
-    const newErrors = validateForm()
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors)
-      return
+const handleSubmit = async (e) => {
+  e.preventDefault()
+
+  const newErrors = validateForm()
+  if (Object.keys(newErrors).length > 0) {
+    setErrors(newErrors)
+    return
+  }
+
+  setIsLoading(true)
+
+  try {
+    const response = await fetch('https://secure-wipe-2gyy.onrender.com/api/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email: formData.email,
+        password: formData.password,
+      }),
+    })
+
+    if (!response.ok) {
+      throw new Error('Network response was not ok')
     }
-    
-    setIsLoading(true)
-    
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
+
+    const data = await response.json()
+
+    if (data.success) {
       
-      // For demo purposes, accept any valid email/password combination
-      // In real app, you'd validate against your backend
+      localStorage.setItem('userid', data.userid)
+      localStorage.setItem('token', data.token)
       login({
         email: formData.email,
-        name: formData.email.split('@')[0], // Use email prefix as name
-        id: Date.now()
+        name: formData.email.split('@')[0],
+        id: data.userid,
       })
-      
-      // Redirect to dashboard
       navigate('/dashboard')
-    } catch (error) {
+    } else {
       setErrors({ submit: 'Login failed. Please check your credentials.' })
-    } finally {
-      setIsLoading(false)
     }
+  } catch (error) {
+    setErrors({ submit: 'Login failed. Please check your credentials.' })
+  } finally {
+    setIsLoading(false)
   }
+}
 
   return (
     <div style={{ 
