@@ -9,45 +9,89 @@ function Verify() {
   const [error, setError] = useState('')
 
   // Handle manual certificate ID verification
+  // const handleManualVerify = async () => {
+  //   if (!certificateId.trim()) {
+  //     setError('Please enter a certificate ID')
+  //     return
+  //   }
+
+  //   setIsVerifying(true)
+  //   setError('')
+    
+  //   try {
+  //     await new Promise(resolve => setTimeout(resolve, 2000))
+      
+  //     const mockResult = {
+  //       isValid: Math.random() > 0.3,
+  //       certificateId: certificateId,
+  //       deviceInfo: {
+  //         serialNumber: 'SN123456789',
+  //         manufacturer: 'Dell Inc.',
+  //         model: 'OptiPlex 7090',
+  //         capacity: '512 GB SSD'
+  //       },
+  //       wipingDetails: {
+  //         method: 'NIST SP 800-88 Rev. 1 - Purge',
+  //         passes: 3,
+  //         dateCompleted: '2024-09-10T14:30:00Z',
+  //         duration: '2h 45m'
+  //       },
+  //       issuer: 'SecureWipe Certification Authority',
+  //       digitalSignature: 'SHA-256: a1b2c3d4e5f6...',
+  //       issuedDate: '2024-09-10T14:35:00Z'
+  //     }
+      
+  //     setVerificationResult(mockResult)
+  //   } catch (err) {
+  //     setError('Verification failed. Please try again.')
+  //   } finally {
+  //     setIsVerifying(false)
+  //   }
+  // }
+
   const handleManualVerify = async () => {
-    if (!certificateId.trim()) {
-      setError('Please enter a certificate ID')
+  if (!certificateId.trim()) {
+    setError('Please enter a certificate ID')
+    return
+  }
+
+  setIsVerifying(true)
+  setError('')
+  setVerificationResult(null)
+
+  try {
+    const response = await fetch(`https://secure-wipe-2gyy.onrender.com/api/cert/verify-by-id/${certificateId}`, {
+      method: 'GET',
+    })
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        setError('Certificate not found.')
+      } else {
+        setError('Verification failed. Please try again.')
+      }
+      setVerificationResult(null)
       return
     }
 
-    setIsVerifying(true)
-    setError('')
-    
-    try {
-      await new Promise(resolve => setTimeout(resolve, 2000))
-      
-      const mockResult = {
-        isValid: Math.random() > 0.3,
-        certificateId: certificateId,
-        deviceInfo: {
-          serialNumber: 'SN123456789',
-          manufacturer: 'Dell Inc.',
-          model: 'OptiPlex 7090',
-          capacity: '512 GB SSD'
-        },
-        wipingDetails: {
-          method: 'NIST SP 800-88 Rev. 1 - Purge',
-          passes: 3,
-          dateCompleted: '2024-09-10T14:30:00Z',
-          duration: '2h 45m'
-        },
-        issuer: 'SecureWipe Certification Authority',
-        digitalSignature: 'SHA-256: a1b2c3d4e5f6...',
-        issuedDate: '2024-09-10T14:35:00Z'
-      }
-      
-      setVerificationResult(mockResult)
-    } catch (err) {
-      setError('Verification failed. Please try again.')
-    } finally {
-      setIsVerifying(false)
+    const data = await response.json()
+
+    // Expected data structure:
+    // { success: true, verified: true, certificate: {...} }
+    if (data.success && data.verified) {
+      setVerificationResult(data.certificate)
+    } else {
+      setError('Certificate could not be verified.')
+      setVerificationResult(null)
     }
+  } catch (err) {
+    setError('Verification failed. Please try again.')
+    setVerificationResult(null)
+  } finally {
+    setIsVerifying(false)
   }
+}
+
 
   // Handle JSON file verification
   const handleJSONVerify = () => {
