@@ -1,5 +1,5 @@
-import { Link } from 'react-router-dom'
-import { Shield } from 'lucide-react'
+import { Link, NavLink } from 'react-router-dom'
+import { Shield, Underline } from 'lucide-react'
 import { useAuth } from '../context/AuthContext.jsx'
 
 function Header() {
@@ -15,9 +15,9 @@ function Header() {
           </Link>
           
           <ul className="nav-links">
-            <li><Link to="/dashboard">Dashboard</Link></li>
-            <li><Link to="/download">Download</Link></li>
-            <li><Link to="/verify">Verify Certificate</Link></li>
+            <li><NavLink className={({ isActive }) => isActive ? 'activeLink' : ''} to="/dashboard">Dashboard</NavLink></li>
+            <li><NavLink className={({ isActive }) => isActive ? 'activeLink' : ''} to="/download">Download</NavLink></li>
+            <li><NavLink className={({ isActive }) => isActive ? 'activeLink' : ''} to="/verify">Verify Certificate</NavLink></li>
           </ul>
           
           <div className="nav-auth">

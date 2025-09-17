@@ -444,4 +444,8 @@ body {
   background: #1DB954;
 }
 
-
+.activeLink {
+  text-decoration: underline;
+  color: #1DB954 !important;
+  font-weight: 600;
+}
