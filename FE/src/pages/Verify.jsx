@@ -8,47 +8,6 @@ function Verify() {
   const [isVerifying, setIsVerifying] = useState(false)
   const [error, setError] = useState('')
 
-  // Handle manual certificate ID verification
-  // const handleManualVerify = async () => {
-  //   if (!certificateId.trim()) {
-  //     setError('Please enter a certificate ID')
-  //     return
-  //   }
-
-  //   setIsVerifying(true)
-  //   setError('')
-    
-  //   try {
-  //     await new Promise(resolve => setTimeout(resolve, 2000))
-      
-  //     const mockResult = {
-  //       isValid: Math.random() > 0.3,
-  //       certificateId: certificateId,
-  //       deviceInfo: {
-  //         serialNumber: 'SN123456789',
-  //         manufacturer: 'Dell Inc.',
-  //         model: 'OptiPlex 7090',
-  //         capacity: '512 GB SSD'
-  //       },
-  //       wipingDetails: {
-  //         method: 'NIST SP 800-88 Rev. 1 - Purge',
-  //         passes: 3,
-  //         dateCompleted: '2024-09-10T14:30:00Z',
-  //         duration: '2h 45m'
-  //       },
-  //       issuer: 'SecureWipe Certification Authority',
-  //       digitalSignature: 'SHA-256: a1b2c3d4e5f6...',
-  //       issuedDate: '2024-09-10T14:35:00Z'
-  //     }
-      
-  //     setVerificationResult(mockResult)
-  //   } catch (err) {
-  //     setError('Verification failed. Please try again.')
-  //   } finally {
-  //     setIsVerifying(false)
-  //   }
-  // }
-
   const handleManualVerify = async () => {
   if (!certificateId.trim()) {
     setError('Please enter a certificate ID')
@@ -79,11 +38,31 @@ function Verify() {
     // Expected data structure:
     // { success: true, verified: true, certificate: {...} }
     if (data.success && data.verified) {
-      setVerificationResult(data.certificate)
-    } else {
-      setError('Certificate could not be verified.')
-      setVerificationResult(null)
+  const cert = data.certificate
+  const mappedResult = {
+    isValid: true,
+    certificateId: cert.id,
+    issuedDate: cert.wipe_date,
+    issuer: 'SecureWipe Certification Authority',
+    digitalSignature: `SHA-256: ${cert.hash}`,
+    deviceInfo: {
+      serialNumber: 'N/A', // backend doesn't provide this
+      manufacturer: 'N/A', // backend doesn't provide this
+      model: cert.device_name || 'N/A',
+      capacity: cert.capacity || 'N/A',
+    },
+    wipingDetails: {
+      method: cert.method || 'N/A',
+      passes: cert.passes || 'N/A',
+      dateCompleted: cert.wipe_date || 'N/A',
+      duration: 'N/A', // backend doesn't provide this
     }
+  }
+  setVerificationResult(mappedResult)
+} else {
+  setError('Certificate could not be verified.')
+  setVerificationResult(null)
+}
   } catch (err) {
     setError('Verification failed. Please try again.')
     setVerificationResult(null)
