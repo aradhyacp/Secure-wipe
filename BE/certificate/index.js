@@ -92,7 +92,15 @@ router.post("/create", async (req, res) => {
         if(error){
             return res.status(500).json({message: "Error adding certificate", error: error.message,success:false});
         }
-        return res.status(201).json({message: "Certificate added successfully", data,success:true});
+        const {error: updateStatsError} = await supabase
+        .from('stats')
+        .update({total_wipes: total_wipes + 1,certificates_issued: certificates_issued + 1})
+        .eq('id',id);
+        if(updateStatsError){
+            console.error("Error updating stats:", updateStatsError.message);
+            return res.status(500).json({message: "Certificate added but failed to update stats", error: updateStatsError.message,success:true});
+        }
+        return res.status(201).json({message: "Certificate added successfully and stats updated", data,success:true});
     } catch (error) {
         return res.status(500).json({message: "Error adding certificate", error: error.message,success:false});
     }
