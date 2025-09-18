@@ -6,104 +6,218 @@ import multer from "multer";
 const upload = multer({ storage: multer.memoryStorage() });
 
 router.post("/verify", upload.single("json_file"), async (req, res) => {
-    try {
-        if (!req.file) {
-            return res.status(400).json({ message: "JSON file is required." });
-        }
-        
-        let jsonData;
-        try {
-            jsonData = JSON.parse(req.file.buffer.toString());
-        } catch (error) {
-            return res.status(400).json({ message: "Invalid JSON file format." });
-        }
-        const { id ,device_name, wipe_date, method, hash } = jsonData;
-        
-        if (!id || !device_name || !wipe_date || !method || !hash) {
-            return res.status(400).json({ message: "Missing required fields in JSON." });
-        }
-        const { data: certificate, error } = await supabase
-            .from("certificates")
-            .select("*")
-            .eq("id", id)
-            .single();
-        
-        if (error) {
-            return res.status(500).json({ message: "Error fetching certificate.", error: error.message });
-        }
-        if (!certificate) {
-            return res.status(404).json({ message: "Certificate not found." });
-        }
-        if (
-            certificate.device_name !== device_name ||
-            new Date(certificate.wipe_date).toISOString() !== new Date(wipe_date).toISOString() ||
-            certificate.method !== method ||
-            certificate.hash !== hash
-        ) {
-            return res.status(400).json({ message: "Certificate data does not match." });
-        }
-        return res.json({ success: true, message: "Certificate verified successfully." });
-    } catch (error) {
-        return res.status(500).json({ message: "Error verifying certificate.", error: error.message });
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: "JSON file is required." });
     }
+
+    let jsonData;
+    try {
+      jsonData = JSON.parse(req.file.buffer.toString());
+    } catch (error) {
+      return res.status(400).json({ message: "Invalid JSON file format." });
+    }
+    const { id, device_name, wipe_date, method, hash } = jsonData;
+
+    if (!id || !device_name || !wipe_date || !method || !hash) {
+      return res
+        .status(400)
+        .json({ message: "Missing required fields in JSON." });
+    }
+    const { data: certificate, error } = await supabase
+      .from("certificates")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    if (error) {
+      return res
+        .status(500)
+        .json({ message: "Error fetching certificate.", error: error.message });
+    }
+    if (!certificate) {
+      return res.status(404).json({ message: "Certificate not found." });
+    }
+    if (
+      certificate.device_name !== device_name ||
+      new Date(certificate.wipe_date).toISOString() !==
+        new Date(wipe_date).toISOString() ||
+      certificate.method !== method ||
+      certificate.hash !== hash
+    ) {
+      return res
+        .status(400)
+        .json({ message: "Certificate data does not match." });
+    }
+    return res.json({
+      success: true,
+      message: "Certificate verified successfully.",
+    });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "Error verifying certificate.", error: error.message });
+  }
 });
 
 router.get("/verify-by-id/:certid", async (req, res) => {
-    try {
-        const { certid } = req.params;
-        const { data: certificate, error } = await supabase
-            .from("certificates")
-            .select("*")
-            .eq("id", certid)
-            .single();
+  try {
+    const { certid } = req.params;
+    const { data: certificate, error } = await supabase
+      .from("certificates")
+      .select("*")
+      .eq("id", certid)
+      .single();
 
-        if (error) {
-            return res.status(500).json({ message: "Error fetching certificate.", error: error.message });
-        }
-        if (!certificate) {
-            return res.status(404).json({ message: "Certificate not found." });
-        }
-        return res.json({ success: true, verified: true, certificate });
-    } catch (error) {
-        return res.status(500).json({ message: "Error verifying certificate.", error: error.message });
+    if (error) {
+      return res
+        .status(500)
+        .json({ message: "Error fetching certificate.", error: error.message });
     }
+    if (!certificate) {
+      return res.status(404).json({ message: "Certificate not found." });
+    }
+    return res.json({ success: true, verified: true, certificate });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "Error verifying certificate.", error: error.message });
+  }
 });
 
 router.post("/create", async (req, res) => {
-    try{
-        const {id,product_key,device_name,capacity,passes,wipe_date,method,hash} = req.body;
-        if(!id || !product_key || !device_name || !capacity || !passes || !wipe_date || !method || !hash){
-            return res.status(400).json({message: "All fields are required"});
-        }
-        const {data: existingCertificate, error: fetchError} = await supabase
-            .from('certificates')
-            .select('*')
-            .eq('id', id)
-            .single();
-        if(fetchError && fetchError.code !== 'PGRST116'){
-            return res.status(500).json({message: "Error checking existing certificate", error: fetchError.message});
-        }
-        if(existingCertificate){
-            return res.status(400).json({message: "Certificate with this ID already exists"});
-        }
-        const {data, error} = await supabase
-            .from('certificates')
-            .insert([{id, product_key, device_name, capacity, passes, wipe_date, method, hash}])
-        if(error){
-            return res.status(500).json({message: "Error adding certificate", error: error.message,success:false});
-        }
-        const {error: updateStatsError} = await supabase
-        .from('stats')
-        .update({total_wipes: total_wipes + 1,certificates_issued: certificates_issued + 1})
-        .eq('id',id);
-        if(updateStatsError){
-            console.error("Error updating stats:", updateStatsError.message);
-            return res.status(500).json({message: "Certificate added but failed to update stats", error: updateStatsError.message,success:true});
-        }
-        return res.status(201).json({message: "Certificate added successfully and stats updated", data,success:true});
-    } catch (error) {
-        return res.status(500).json({message: "Error adding certificate", error: error.message,success:false});
+  try {
+    const {
+      id,
+      product_key,
+      device_name,
+      capacity,
+      passes,
+      wipe_date,
+      method,
+      hash,
+    } = req.body;
+    if (
+      !id ||
+      !product_key ||
+      !device_name ||
+      !capacity ||
+      !passes ||
+      !wipe_date ||
+      !method ||
+      !hash
+    ) {
+      return res.status(400).json({ message: "All fields are required" });
     }
+    const { data: existingCertificate, error: fetchError } = await supabase
+      .from("certificates")
+      .select("*")
+      .eq("id", id)
+      .single();
+    if (fetchError && fetchError.code !== "PGRST116") {
+      return res
+        .status(500)
+        .json({
+          message: "Error checking existing certificate",
+          error: fetchError.message,
+        });
+    }
+    if (existingCertificate) {
+      return res
+        .status(400)
+        .json({ message: "Certificate with this ID already exists" });
+    }
+    const { data, error } = await supabase
+      .from("certificates")
+      .insert([
+        {
+          id,
+          product_key,
+          device_name,
+          capacity,
+          passes,
+          wipe_date,
+          method,
+          hash,
+        },
+      ]);
+    if (error) {
+      return res
+        .status(500)
+        .json({
+          message: "Error adding certificate",
+          error: error.message,
+          success: false,
+        });
+    }
+    const { data: currentStats, error: fetchStatsError } = await supabase
+      .from("user_stats")
+      .select("total_wipes, certificates_issued")
+      .eq("product_key", product_key)
+      .maybeSingle();
+
+    if (fetchStatsError) {
+      console.error("Failed to fetch current stats:", fetchStatsError.message);
+      return res
+        .status(500)
+        .json({
+          message: "Error fetching stats",
+          error: fetchStatsError.message,
+        });
+    }
+
+    if (currentStats) {
+  // Row exists → update it
+  const { error: updateStatsError } = await supabase
+    .from("user_stats")
+    .update({
+      total_wipes: (currentStats.total_wipes || 0) + 1,
+      certificates_issued: (currentStats.certificates_issued || 0) + 1,
+    })
+    .eq("product_key", product_key);
+
+  if (updateStatsError) {
+    console.error("Error updating stats:", updateStatsError.message);
+    return res.status(500).json({
+      message: "Certificate added but failed to update stats",
+      error: updateStatsError.message,
+      success: true,
+    });
+  }
+} else {
+  // Row doesn't exist → insert new one
+  const { error: insertStatsError } = await supabase
+    .from("user_stats")
+    .insert([
+      {
+        product_key,
+        total_wipes: 1,
+        certificates_issued: 1,
+      },
+    ]);
+
+  if (insertStatsError) {
+    console.error("Error inserting stats:", insertStatsError.message);
+    return res.status(500).json({
+      message: "Certificate added but failed to initialize stats",
+      error: insertStatsError.message,
+      success: true,
+    });
+}
+return res.status(201).json({
+    message: "Certificate created and stats initialized successfully",
+    success: true,
+  });
+}
+  } catch (error) {
+    return res
+      .status(500)
+      .json({
+        message: "Error adding certificate",
+        error: error.message,
+        success: false,
+      });
+  }
 });
 
 export default router;
