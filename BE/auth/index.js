@@ -49,7 +49,7 @@ router.post("/signup", async (req, res) => {
         return res.status(500).json({ message: "Error creating user.", error: error.message }); 
     }
     const token = jwt.sign({ id: data.id, email: data.email }, config.JWT_SECRET);
-    return res.json({ success: true, userId: data.id, token: "bearer " + token });
+    return res.json({ success: true, userId: data.id, token });
 
     } catch (error) {
         return res.status(500).json({ message: "Error creating user.", error: error.message });
@@ -79,7 +79,7 @@ router.post("/login", async (req, res) => {
       return res.status(400).json({ success: false, error: "Invalid email or password" });
     }
     const token = jwt.sign({ id: user.id, email: user.email }, config.JWT_SECRET);
-    return res.json({ success: true, userId: user.id, token: "bearer " + token });
+    return res.json({ success: true, userId: user.id, token });
     } catch (error) {
         return res.status(500).json({ message: "Error logging in.", error: error.message });
     }
