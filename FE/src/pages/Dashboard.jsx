@@ -1,14 +1,90 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Shield, Download, FileCheck, Key, Copy, Eye, EyeOff } from 'lucide-react'
+import { Shield, Download, FileCheck, Key, Copy, Eye, EyeOff, AlertTriangle } from 'lucide-react'
 
 function Dashboard() {
   const [showProductKey, setShowProductKey] = useState(false)
-  const [productKey] = useState('SWIPE-2024-ABCD-EFGH-IJKL-MNOP')
   const [copied, setCopied] = useState(false)
+  const [productKey, setProductKey] = useState('')
+  const [totalWipes, setTotalWipes] = useState(0)
+  const [certificatesIssued, setCertificatesIssued] = useState(0)
+  const [recentCerts, setRecentCerts] = useState([])
+  const [metrics, setMetrics] = useState({
+    totalWipes: 0,
+    productKey: '',
+    certificatesIssued: 0
+  })
+
+  // Load cached metrics and fetch fresh metrics
+  useEffect(() => {
+    try {
+      const cached = localStorage.getItem('dashboardMetrics')
+      if (cached) {
+        const parsed = JSON.parse(cached)
+        setMetrics((prev) => ({ ...prev, ...parsed }))
+      }
+    } catch (_) {
+      // ignore storage errors
+    }
+
+    const fetchMetrics = async () => {
+      try {
+        const token = localStorage.getItem('token')
+        const res = await fetch(`https://secure-wipe-2gyy.onrender.com/api/auth/me`, {
+          headers: {
+            'Content-Type': 'application/json',
+            "Authorization": `Bearer ${token}`,
+          }
+        })
+        if (!res.ok) return
+        const data = await res.json()
+        // Debug log to inspect exact API response shape during development
+        try { console.log('AUTH /me response:', data) } catch (_) {}
+
+        // Normalize stats from possible shapes (keep it simple)
+        setTotalWipes(data?.userStats?.total_wipes ?? 0)
+        setCertificatesIssued(data?.userStats?.certificates_issued ?? 0)
+        setProductKey(data?.user?.product_key ?? '')
+
+        const next = {
+          totalWipes,
+          productKey: typeof data?.user?.product_key === 'string' ? data.user.product_key : '',
+          certificatesIssued
+        }
+        setMetrics(next)
+
+        // Recent certificates from response: try several keys
+        const rawCerts = Array.isArray(data?.cert)
+          ? data.cert
+          : Array.isArray(data?.certificates)
+            ? data.certificates
+            : Array.isArray(data?.certs)
+              ? data.certs
+              : []
+        const normalizedCerts = rawCerts
+          .map((c) => ({
+            id: c?.certificate_id ?? c?.id ?? undefined,
+            device_name: c?.device_name ?? c?.device ?? c?.name ?? 'Unknown Device',
+            wipe_date: c?.wipe_date ?? c?.created_at ?? c?.date ?? null,
+            status: 'Completed'
+          }))
+          .slice(0, 5)
+        setRecentCerts(normalizedCerts)
+        try {
+          localStorage.setItem('dashboardMetrics', JSON.stringify(next))
+        } catch (_) {
+          // ignore storage errors
+        }
+      } catch (_) {
+        // silent fail; UI will show cached/defaults
+      }
+    }
+
+    fetchMetrics()
+  }, [])
 
   const copyProductKey = () => {
-    navigator.clipboard.writeText(productKey)
+    navigator.clipboard.writeText(metrics.productKey || '')
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
@@ -50,8 +126,8 @@ function Dashboard() {
               <h3 style={{ margin: 0, color: '#6B7280' }}>Total Wipes</h3>
               <Shield size={24} style={{ color: '#1DB954' }} />
             </div>
-            <p style={{ fontSize: '2rem', fontWeight: 'bold', margin: 0, color: '#0F1724' }}>47</p>
-            <p style={{ color: '#1DB954', fontSize: '0.875rem', margin: '0.5rem 0 0 0' }}>+3 this week</p>
+            <p style={{ fontSize: '2rem', fontWeight: 'bold', margin: 0, color: '#0F1724' }}>{totalWipes}</p>
+            
           </div>
 
           {/* Product Key */}
@@ -69,7 +145,9 @@ function Dashboard() {
               marginBottom: '0.5rem',
               wordBreak: 'break-all'
             }}>
-              {showProductKey ? productKey : maskProductKey(productKey)}
+              {metrics.productKey
+                ? (showProductKey ? metrics.productKey : maskProductKey(metrics.productKey))
+                : '-'}
             </div>
             <div style={{ display: 'flex', gap: '0.5rem' }}>
               <button 
@@ -116,7 +194,7 @@ function Dashboard() {
               <h3 style={{ margin: 0, color: '#6B7280' }}>Certificates Issued</h3>
               <FileCheck size={24} style={{ color: '#1DB954' }} />
             </div>
-            <p style={{ fontSize: '2rem', fontWeight: 'bold', margin: 0, color: '#0F1724' }}>47</p>
+            <p style={{ fontSize: '2rem', fontWeight: 'bold', margin: 0, color: '#0F1724' }}>{certificatesIssued}</p>
             <p style={{ color: '#1DB954', fontSize: '0.875rem', margin: '0.5rem 0 0 0' }}>100% verified</p>
           </div>
         </div>
@@ -163,63 +241,39 @@ function Dashboard() {
             borderRadius: '0.75rem', 
             overflow: 'hidden' 
           }}>
-            <div style={{ padding: '1rem', borderBottom: '1px solid #E5E7EB' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                  <p style={{ fontWeight: '500', margin: 0 }}>Dell Laptop - Model XPS 13</p>
-                  <p style={{ color: '#6B7280', fontSize: '0.875rem', margin: '0.25rem 0 0 0' }}>
-                    Wiped successfully • Certificate: SW-2024-001
-                  </p>
+            {(recentCerts && recentCerts.length > 0) ? (
+              recentCerts.map((c, idx) => (
+                <div key={`${c.id ?? idx}`} style={{ padding: '1rem', borderBottom: idx < recentCerts.length - 1 ? '1px solid #E5E7EB' : 'none' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div>
+                      <p style={{ fontWeight: '500', margin: 0 }}>{c.device_name}</p>
+                      <p style={{ color: '#6B7280', fontSize: '0.875rem', margin: '0.25rem 0 0 0' }}>
+                        Wiped successfully{c.id ? ` • Certificate: ${c.id}` : ''}{c.wipe_date ? ` • ${new Date(c.wipe_date).toLocaleString()}` : ''}
+                      </p>
+                    </div>
+                    <span style={{ 
+                      background: '#DCFCE7', 
+                      color: '#166534', 
+                      padding: '0.25rem 0.5rem', 
+                      borderRadius: '1rem', 
+                      fontSize: '0.75rem' 
+                    }}>
+                      {c.status || 'Completed'}
+                    </span>
+                  </div>
                 </div>
-                <span style={{ 
-                  background: '#DCFCE7', 
-                  color: '#166534', 
-                  padding: '0.25rem 0.5rem', 
-                  borderRadius: '1rem', 
-                  fontSize: '0.75rem' 
-                }}>
-                  Completed
-                </span>
-              </div>
-            </div>
-            <div style={{ padding: '1rem', borderBottom: '1px solid #E5E7EB' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                  <p style={{ fontWeight: '500', margin: 0 }}>HP Desktop - Model EliteDesk</p>
-                  <p style={{ color: '#6B7280', fontSize: '0.875rem', margin: '0.25rem 0 0 0' }}>
-                    Wiped successfully • Certificate: SW-2024-002
-                  </p>
+              ))
+            ) : (
+              <div style={{ padding: '1rem', background: '#FFFBEB', borderTop: '1px solid #FDE68A' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#92400E' }}>
+                  <AlertTriangle size={18} />
+                  <div>
+                    <p style={{ margin: 0, fontWeight: 600 }}>No certificates yet</p>
+                    <p style={{ margin: 0, fontSize: '0.875rem' }}>Your certificate list is empty. Run a wipe to generate certificates.</p>
+                  </div>
                 </div>
-                <span style={{ 
-                  background: '#DCFCE7', 
-                  color: '#166534', 
-                  padding: '0.25rem 0.5rem', 
-                  borderRadius: '1rem', 
-                  fontSize: '0.75rem' 
-                }}>
-                  Completed
-                </span>
               </div>
-            </div>
-            <div style={{ padding: '1rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                  <p style={{ fontWeight: '500', margin: 0 }}>Lenovo ThinkPad - Model T480</p>
-                  <p style={{ color: '#6B7280', fontSize: '0.875rem', margin: '0.25rem 0 0 0' }}>
-                    Wiped successfully • Certificate: SW-2024-003
-                  </p>
-                </div>
-                <span style={{ 
-                  background: '#DCFCE7', 
-                  color: '#166534', 
-                  padding: '0.25rem 0.5rem', 
-                  borderRadius: '1rem', 
-                  fontSize: '0.75rem' 
-                }}>
-                  Completed
-                </span>
-              </div>
-            </div>
+            )}
           </div>
         </div>
       </div>
