@@ -6,6 +6,7 @@ import Signup from '../pages/Signup'
 import Dashboard from '../pages/Dashboard'
 import Verify from '../pages/Verify'
 import Download from '../pages/Download'
+import FAQ from '../pages/FAQ'
 
 function AppRoutes() {
   return (
@@ -23,6 +24,7 @@ function AppRoutes() {
       />
       <Route path="/verify" element={<Verify />} />
       <Route path="/download" element={<Download />} />
+      <Route path="/faq" element={<FAQ />} />
     </Routes>
   )
 }

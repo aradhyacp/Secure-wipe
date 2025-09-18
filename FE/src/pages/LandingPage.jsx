@@ -155,14 +155,14 @@ function LandingPage() {
       <section className="stats">
         <div className="container">
           <div className="stats-grid">
-            {/* <div className="stat-item">
+            <div className="stat-item">
               <h3>99.9%</h3>
               <p>Data Destruction Accuracy</p>
-            </div> */}
-            <div className="stat-item">
+            </div>
+            {/* <div className="stat-item">
               <h3>1M+</h3>
               <p>Devices Processed</p>
-            </div>
+            </div> */}
             <div className="stat-item">
               <h3>100%</h3>
               <p>NIST Compliant</p>

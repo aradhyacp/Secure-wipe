@@ -1,6 +1,7 @@
 import { Link, NavLink } from 'react-router-dom'
 import { Shield, Underline } from 'lucide-react'
 import { useAuth } from '../context/AuthContext.jsx'
+import logo from "../assets/5.png";
 
 function Header() {
   const { isAuthenticated, user, logout } = useAuth()
@@ -10,7 +11,8 @@ function Header() {
       <div className="container">
         <nav className="nav">
           <Link to="/" className="logo">
-            <Shield className="logo-icon" size={24} />
+            {/* <Shield className="logo-icon" size={24} /> */}
+            <img src={logo} width={60} alt="SecureWipe Logo" className="logo-icon" />
             SecureWipe
           </Link>
           

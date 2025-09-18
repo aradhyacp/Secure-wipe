@@ -1,173 +1,225 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { useAuth } from '../context/AuthContext'
-import { Shield, Monitor, HardDrive, FileCheck, Zap, AlertTriangle, CheckCircle } from 'lucide-react'
+import { Shield, Download, FileCheck, Key, Copy, Eye, EyeOff } from 'lucide-react'
 
 function Dashboard() {
-  const { user } = useAuth()
+  const [showProductKey, setShowProductKey] = useState(false)
+  const [productKey] = useState('SWIPE-2024-ABCD-EFGH-IJKL-MNOP')
+  const [copied, setCopied] = useState(false)
+
+  const copyProductKey = () => {
+    navigator.clipboard.writeText(productKey)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  const toggleProductKeyVisibility = () => {
+    setShowProductKey(!showProductKey)
+  }
+
+  const maskProductKey = (key) => {
+    const parts = key.split('-')
+    return parts.map((part, index) => 
+      index === 0 || index === parts.length - 1 ? part : '****'
+    ).join('-')
+  }
 
   return (
-    <div style={{ padding: '2rem 0', minHeight: '70vh' }}>
+    <div style={{ minHeight: '80vh', padding: '2rem 0' }}>
       <div className="container">
-        {/* Welcome Section */}
-        <div style={{ marginBottom: '2rem' }}>
-          <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>
-            Welcome back, <span style={{ color: '#1DB954' }}>{user?.name}</span>
+        {/* Header */}
+        <div style={{ marginBottom: '3rem' }}>
+          <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '1rem' }}>
+            SecureWipe Dashboard
           </h1>
           <p style={{ color: '#6B7280', fontSize: '1.125rem' }}>
-            Secure data wiping dashboard - Manage your sanitization tasks
+            Manage your secure data wiping operations and certificates
           </p>
         </div>
 
-        {/* Quick Stats */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+        {/* Stats Cards */}
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
           gap: '1.5rem',
-          marginBottom: '3rem'
+          marginBottom: '3rem' 
         }}>
-          <div className="feature-card" style={{ textAlign: 'left', padding: '1.5rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '0.5rem' }}>
-              <HardDrive size={20} style={{ color: '#1DB954', marginRight: '0.5rem' }} />
-              <h3 style={{ fontSize: '1rem', margin: 0 }}>Devices Processed</h3>
+          {/* Total Wipes */}
+          <div className="feature-card">
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+              <h3 style={{ margin: 0, color: '#6B7280' }}>Total Wipes</h3>
+              <Shield size={24} style={{ color: '#1DB954' }} />
             </div>
-            <p style={{ fontSize: '2rem', fontWeight: 'bold', margin: 0, color: '#1DB954' }}>0</p>
+            <p style={{ fontSize: '2rem', fontWeight: 'bold', margin: 0, color: '#0F1724' }}>47</p>
+            <p style={{ color: '#1DB954', fontSize: '0.875rem', margin: '0.5rem 0 0 0' }}>+3 this week</p>
           </div>
 
-          <div className="feature-card" style={{ textAlign: 'left', padding: '1.5rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '0.5rem' }}>
-              <FileCheck size={20} style={{ color: '#1DB954', marginRight: '0.5rem' }} />
-              <h3 style={{ fontSize: '1rem', margin: 0 }}>Certificates Issued</h3>
+          {/* Product Key */}
+          <div className="feature-card">
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+              <h3 style={{ margin: 0, color: '#6B7280' }}>Product Key</h3>
+              <Key size={24} style={{ color: '#1DB954' }} />
             </div>
-            <p style={{ fontSize: '2rem', fontWeight: 'bold', margin: 0, color: '#1DB954' }}>0</p>
+            <div style={{ 
+              background: '#F8FAFC', 
+              padding: '0.75rem', 
+              borderRadius: '0.5rem', 
+              fontFamily: 'monospace',
+              fontSize: '0.875rem',
+              marginBottom: '0.5rem',
+              wordBreak: 'break-all'
+            }}>
+              {showProductKey ? productKey : maskProductKey(productKey)}
+            </div>
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <button 
+                onClick={toggleProductKeyVisibility}
+                style={{
+                  background: 'transparent',
+                  border: '1px solid #E5E7EB',
+                  borderRadius: '0.375rem',
+                  padding: '0.375rem 0.5rem',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.25rem',
+                  fontSize: '0.75rem'
+                }}
+              >
+                {showProductKey ? <EyeOff size={14} /> : <Eye size={14} />}
+                {showProductKey ? 'Hide' : 'Show'}
+              </button>
+              <button 
+                onClick={copyProductKey}
+                style={{
+                  background: copied ? '#DCFCE7' : 'transparent',
+                  border: '1px solid #E5E7EB',
+                  borderRadius: '0.375rem',
+                  padding: '0.375rem 0.5rem',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.25rem',
+                  fontSize: '0.75rem',
+                  color: copied ? '#166534' : 'inherit'
+                }}
+              >
+                <Copy size={14} />
+                {copied ? 'Copied!' : 'Copy'}
+              </button>
+            </div>
           </div>
 
-          <div className="feature-card" style={{ textAlign: 'left', padding: '1.5rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '0.5rem' }}>
-              <Shield size={20} style={{ color: '#1DB954', marginRight: '0.5rem' }} />
-              <h3 style={{ fontSize: '1rem', margin: 0 }}>Active Sessions</h3>
+          {/* Certificates Issued */}
+          <div className="feature-card">
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+              <h3 style={{ margin: 0, color: '#6B7280' }}>Certificates Issued</h3>
+              <FileCheck size={24} style={{ color: '#1DB954' }} />
             </div>
-            <p style={{ fontSize: '2rem', fontWeight: 'bold', margin: 0, color: '#1DB954' }}>0</p>
-          </div>
-
-          <div className="feature-card" style={{ textAlign: 'left', padding: '1.5rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '0.5rem' }}>
-              <CheckCircle size={20} style={{ color: '#1DB954', marginRight: '0.5rem' }} />
-              <h3 style={{ fontSize: '1rem', margin: 0 }}>Success Rate</h3>
-            </div>
-            <p style={{ fontSize: '2rem', fontWeight: 'bold', margin: 0, color: '#1DB954' }}>--</p>
+            <p style={{ fontSize: '2rem', fontWeight: 'bold', margin: 0, color: '#0F1724' }}>47</p>
+            <p style={{ color: '#1DB954', fontSize: '0.875rem', margin: '0.5rem 0 0 0' }}>100% verified</p>
           </div>
         </div>
 
-        {/* Main Actions */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-          gap: '2rem',
-          marginBottom: '3rem'
-        }}>
-          {/* Start New Wipe */}
-          <div className="feature-card" style={{ padding: '2rem' }}>
-            <div className="feature-icon" style={{ margin: '0 0 1rem 0' }}>
-              <Zap size={24} />
-            </div>
-            <h3 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Start Secure Wipe</h3>
-            <p style={{ color: '#6B7280', marginBottom: '1.5rem' }}>
-              Begin a new secure data sanitization process with NIST-compliant methods
-            </p>
-            <button className="btn btn-primary" style={{ width: '100%' }}>
-              <Monitor size={18} />
-              Launch Wipe Tool
-            </button>
-          </div>
-
-          {/* Verify Certificate */}
-          <div className="feature-card" style={{ padding: '2rem' }}>
-            <div className="feature-icon" style={{ margin: '0 0 1rem 0' }}>
-              <FileCheck size={24} />
-            </div>
-            <h3 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Certificate Verification</h3>
-            <p style={{ color: '#6B7280', marginBottom: '1.5rem' }}>
-              Verify the authenticity of data sanitization certificates
-            </p>
-            <Link to="/verify" className="btn btn-outline" style={{ width: '100%', textAlign: 'center' }}>
-              <Shield size={18} />
-              Verify Certificate
+        {/* Quick Actions */}
+        <div style={{ marginBottom: '3rem' }}>
+          <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1.5rem' }}>
+            Quick Actions
+          </h2>
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
+            gap: '1rem' 
+          }}>
+            <Link to="/verify" className="btn btn-primary" style={{ 
+              padding: '1rem', 
+              textAlign: 'center',
+              textDecoration: 'none',
+              borderRadius: '0.75rem'
+            }}>
+              <FileCheck size={20} style={{ marginBottom: '0.5rem' }} />
+              <div>Verify Certificate</div>
+            </Link>
+            <Link to="/download" className="btn btn-outline" style={{ 
+              padding: '1rem', 
+              textAlign: 'center',
+              textDecoration: 'none',
+              borderRadius: '0.75rem'
+            }}>
+              <Download size={20} style={{ marginBottom: '0.5rem' }} />
+              <div>Download Software</div>
             </Link>
           </div>
         </div>
 
         {/* Recent Activity */}
-        <div style={{ marginBottom: '3rem' }}>
-          <h2 style={{ fontSize: '1.875rem', fontWeight: 'bold', marginBottom: '1rem' }}>Recent Activity</h2>
-          <div className="feature-card" style={{ padding: '2rem', textAlign: 'center' }}>
-            <AlertTriangle size={48} style={{ color: '#F59E0B', marginBottom: '1rem' }} />
-            <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem', color: '#F59E0B' }}>No Recent Activity</h3>
-            <p style={{ color: '#6B7280' }}>
-              Start your first secure wipe to see activity logs and certificates here
-            </p>
-          </div>
-        </div>
-
-        {/* Quick Links */}
-        <div style={{
-          background: '#F8FAFC',
-          padding: '2rem',
-          borderRadius: '1rem',
-          border: '1px solid #E5E7EB'
-        }}>
-          <h3 style={{ fontSize: '1.25rem', fontWeight: 'bold', marginBottom: '1rem' }}>Quick Links</h3>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-            gap: '1rem'
+        <div>
+          <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1.5rem' }}>
+            Recent Activity
+          </h2>
+          <div style={{ 
+            background: 'white', 
+            border: '1px solid #E5E7EB', 
+            borderRadius: '0.75rem', 
+            overflow: 'hidden' 
           }}>
-            <Link to="/download" style={{
-              display: 'flex',
-              alignItems: 'center',
-              padding: '0.75rem',
-              background: 'white',
-              borderRadius: '0.5rem',
-              textDecoration: 'none',
-              color: '#374151',
-              border: '1px solid #E5E7EB',
-              transition: 'all 0.2s'
-            }} onMouseOver={(e) => e.target.style.borderColor = '#1DB954'} 
-               onMouseOut={(e) => e.target.style.borderColor = '#E5E7EB'}>
-              <Monitor size={16} style={{ marginRight: '0.5rem' }} />
-              Download Software
-            </Link>
-            
-            <a href="#" style={{
-              display: 'flex',
-              alignItems: 'center',
-              padding: '0.75rem',
-              background: 'white',
-              borderRadius: '0.5rem',
-              textDecoration: 'none',
-              color: '#374151',
-              border: '1px solid #E5E7EB',
-              transition: 'all 0.2s'
-            }} onMouseOver={(e) => e.target.style.borderColor = '#1DB954'} 
-               onMouseOut={(e) => e.target.style.borderColor = '#E5E7EB'}>
-              <FileCheck size={16} style={{ marginRight: '0.5rem' }} />
-              Documentation
-            </a>
-            
-            <a href="#" style={{
-              display: 'flex',
-              alignItems: 'center',
-              padding: '0.75rem',
-              background: 'white',
-              borderRadius: '0.5rem',
-              textDecoration: 'none',
-              color: '#374151',
-              border: '1px solid #E5E7EB',
-              transition: 'all 0.2s'
-            }} onMouseOver={(e) => e.target.style.borderColor = '#1DB954'} 
-               onMouseOut={(e) => e.target.style.borderColor = '#E5E7EB'}>
-              <Shield size={16} style={{ marginRight: '0.5rem' }} />
-              Support Center
-            </a>
+            <div style={{ padding: '1rem', borderBottom: '1px solid #E5E7EB' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <p style={{ fontWeight: '500', margin: 0 }}>Dell Laptop - Model XPS 13</p>
+                  <p style={{ color: '#6B7280', fontSize: '0.875rem', margin: '0.25rem 0 0 0' }}>
+                    Wiped successfully • Certificate: SW-2024-001
+                  </p>
+                </div>
+                <span style={{ 
+                  background: '#DCFCE7', 
+                  color: '#166534', 
+                  padding: '0.25rem 0.5rem', 
+                  borderRadius: '1rem', 
+                  fontSize: '0.75rem' 
+                }}>
+                  Completed
+                </span>
+              </div>
+            </div>
+            <div style={{ padding: '1rem', borderBottom: '1px solid #E5E7EB' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <p style={{ fontWeight: '500', margin: 0 }}>HP Desktop - Model EliteDesk</p>
+                  <p style={{ color: '#6B7280', fontSize: '0.875rem', margin: '0.25rem 0 0 0' }}>
+                    Wiped successfully • Certificate: SW-2024-002
+                  </p>
+                </div>
+                <span style={{ 
+                  background: '#DCFCE7', 
+                  color: '#166534', 
+                  padding: '0.25rem 0.5rem', 
+                  borderRadius: '1rem', 
+                  fontSize: '0.75rem' 
+                }}>
+                  Completed
+                </span>
+              </div>
+            </div>
+            <div style={{ padding: '1rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <p style={{ fontWeight: '500', margin: 0 }}>Lenovo ThinkPad - Model T480</p>
+                  <p style={{ color: '#6B7280', fontSize: '0.875rem', margin: '0.25rem 0 0 0' }}>
+                    Wiped successfully • Certificate: SW-2024-003
+                  </p>
+                </div>
+                <span style={{ 
+                  background: '#DCFCE7', 
+                  color: '#166534', 
+                  padding: '0.25rem 0.5rem', 
+                  borderRadius: '1rem', 
+                  fontSize: '0.75rem' 
+                }}>
+                  Completed
+                </span>
+              </div>
+            </div>
           </div>
         </div>
       </div>

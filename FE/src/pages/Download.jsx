@@ -117,9 +117,9 @@ function DownloadPage() {
               <Download size={20} style={{ marginRight: '0.5rem' }} />
               Download for {platforms.find(p => p.id === selectedPlatform)?.name}
             </button>
-            <p style={{ color: '#6B7280', fontSize: '0.875rem', marginTop: '0.5rem' }}>
+            {/* <p style={{ color: '#6B7280', fontSize: '0.875rem', marginTop: '0.5rem' }}>
               Free 30-day trial • No credit card required
-            </p>
+            </p> */}
           </div>
         </div>
 
