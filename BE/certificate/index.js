@@ -69,4 +69,33 @@ router.get("/verify-by-id/:certid", async (req, res) => {
     }
 });
 
+router.post("/create", async (req, res) => {
+    try{
+        const {id,product_key,device_name,capacity,passes,wipe_date,method,hash} = req.body;
+        if(!id || !product_key || !device_name || !capacity || !passes || !wipe_date || !method || !hash){
+            return res.status(400).json({message: "All fields are required"});
+        }
+        const {data: existingCertificate, error: fetchError} = await supabase
+            .from('certificates')
+            .select('*')
+            .eq('id', id)
+            .single();
+        if(fetchError && fetchError.code !== 'PGRST116'){
+            return res.status(500).json({message: "Error checking existing certificate", error: fetchError.message});
+        }
+        if(existingCertificate){
+            return res.status(400).json({message: "Certificate with this ID already exists"});
+        }
+        const {data, error} = await supabase
+            .from('certificates')
+            .insert([{id, product_key, device_name, capacity, passes, wipe_date, method, hash}])
+        if(error){
+            return res.status(500).json({message: "Error adding certificate", error: error.message,success:false});
+        }
+        return res.status(201).json({message: "Certificate added successfully", data,success:true});
+    } catch (error) {
+        return res.status(500).json({message: "Error adding certificate", error: error.message,success:false});
+    }
+});
+
 export default router;
