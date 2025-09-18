@@ -49,7 +49,7 @@ router.post("/signup", async (req, res) => {
         return res.status(500).json({ message: "Error creating user.", error: error.message }); 
     }
     const token = jwt.sign({ id: data.id, email: data.email }, config.JWT_SECRET);
-    return res.json({ success: true, userId: data.id, token });
+    return res.json({ success: true, userId: data.id, token: "bearer " + token });
 
     } catch (error) {
         return res.status(500).json({ message: "Error creating user.", error: error.message });
@@ -79,7 +79,7 @@ router.post("/login", async (req, res) => {
       return res.status(400).json({ success: false, error: "Invalid email or password" });
     }
     const token = jwt.sign({ id: user.id, email: user.email }, config.JWT_SECRET);
-    return res.json({ success: true, userId: user.id, token });
+    return res.json({ success: true, userId: user.id, token: "bearer " + token });
     } catch (error) {
         return res.status(500).json({ message: "Error logging in.", error: error.message });
     }
@@ -98,11 +98,22 @@ router.get("/me", authMiddleware, async (req, res) => {
         if (error || !user) {
             return res.status(404).json({ message: "User not found." });
         }
-        const { data: stats, error: statsError } = await supabase
+        const { data: cert, error: certError } = await supabase
             .from('certificates')
-            .select('id,total_wipes,certificates_issued')
-            .eq('user_id', id);
-        return res.json({ user, stats, success: true });
+            .select('id,device_name,capacity,passes,wipe_date,method')
+            .eq('product_key', user.product_key);
+        if (certError) {
+            return res.status(500).json({ message: "Error fetching user certificates details.", error: certError.message });
+        }
+        const {data: userStats, error: statsError } = await supabase
+            .from('user_stats')
+            .select('total_wipes, certificates_issued')
+            .eq('product_key', user.product_key)
+            .single();
+        if (statsError) {
+            return res.status(500).json({ message: "Error fetching user stats.", error: statsError.message });
+        }
+        return res.json({ user, cert, userStats, success: true });
     } catch (error) {
         return res.status(401).json({ message: "Invalid token.", error: error.message });
     }
