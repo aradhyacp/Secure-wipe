@@ -98,7 +98,11 @@ router.get("/me", authMiddleware, async (req, res) => {
         if (error || !user) {
             return res.status(404).json({ message: "User not found." });
         }
-        return res.json({ user });
+        const { data: stats, error: statsError } = await supabase
+            .from('certificates')
+            .select('id,total_wipes,certificates_issued')
+            .eq('user_id', id);
+        return res.json({ user, stats, success: true });
     } catch (error) {
         return res.status(401).json({ message: "Invalid token.", error: error.message });
     }
