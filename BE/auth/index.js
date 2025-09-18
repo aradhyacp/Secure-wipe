@@ -109,7 +109,7 @@ router.get("/me", authMiddleware, async (req, res) => {
             .from('user_stats')
             .select('total_wipes, certificates_issued')
             .eq('product_key', user.product_key)
-            .single();
+            .maybeSingle();
         if (statsError) {
             return res.status(500).json({ message: "Error fetching user stats.", error: statsError.message });
         }
