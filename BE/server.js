@@ -15,6 +15,7 @@ app.get("/", (req, res) => {
 })
 
 app.use((err, req, res, next) => {
+  console.error(err.stack);
   return res.status(400).json({
     error: "Internal server error",
   });

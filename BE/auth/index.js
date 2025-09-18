@@ -98,7 +98,22 @@ router.get("/me", authMiddleware, async (req, res) => {
         if (error || !user) {
             return res.status(404).json({ message: "User not found." });
         }
-        return res.json({ user });
+        const { data: cert, error: certError } = await supabase
+            .from('certificates')
+            .select('id,device_name,capacity,passes,wipe_date,method')
+            .eq('product_key', user.product_key);
+        if (certError) {
+            return res.status(500).json({ message: "Error fetching user certificates details.", error: certError.message });
+        }
+        const {data: userStats, error: statsError } = await supabase
+            .from('user_stats')
+            .select('total_wipes, certificates_issued')
+            .eq('product_key', user.product_key)
+            .maybeSingle();
+        if (statsError) {
+            return res.status(500).json({ message: "Error fetching user stats.", error: statsError.message });
+        }
+        return res.json({ user, cert, userStats, success: true });
     } catch (error) {
         return res.status(401).json({ message: "Invalid token.", error: error.message });
     }

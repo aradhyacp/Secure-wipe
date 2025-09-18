@@ -7,12 +7,22 @@ create table users (
     created_at timestamp default now()
 );
 
+
 create table certificates (
-    id uuid primary key,
-    user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    id text primary key,
+    product_key text NOT NULL REFERENCES users(product_key) ON DELETE CASCADE,
     device_name text not null,
+    capacity text not null,
+    passes text,
     wipe_date timestamp not null,
     method text not null,
     created_at timestamp default now(),
     hash text not null
 );
+
+create table user_stats (
+    id uuid not null references users(id) on delete cascade primary key,
+    product_key text not null references users(product_key) unique,
+    total_wipes integer,
+    certificates_issued integer
+)
