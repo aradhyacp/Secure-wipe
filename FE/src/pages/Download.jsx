@@ -24,12 +24,12 @@ function DownloadPage() {
       downloadUrl: '#'
     },
     {
-      id: 'android',
-      name: 'Android',
-      icon: Smartphone,
-      version: 'v1.8.3',
-      size: '45 MB',
-      description: 'Android 8.0+ (API level 26+)',
+      id: 'MacOS',
+      name: 'MacOS',
+      icon: Monitor,
+      version: 'v13.3',
+      size: '145 MB',
+      description: 'MacOS 13.0+ ',
       downloadUrl: '#'
     }
   ]
@@ -234,12 +234,12 @@ function DownloadPage() {
             <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: '0.75rem', padding: '1.5rem' }}>
               <h3 style={{ fontWeight: '600', marginBottom: '1rem', display: 'flex', alignItems: 'center' }}>
                 <Smartphone size={18} style={{ marginRight: '0.5rem', color: '#1DB954' }} />
-                Android
+                MacOS
               </h3>
               <ul style={{ listStyle: 'none', padding: 0, margin: 0, color: '#6B7280', fontSize: '0.875rem' }}>
-                <li style={{ marginBottom: '0.25rem' }}>• Android 8.0+ (API 26+)</li>
-                <li style={{ marginBottom: '0.25rem' }}>• 1GB RAM minimum</li>
-                <li style={{ marginBottom: '0.25rem' }}>• 100MB free storage</li>
+                <li style={{ marginBottom: '0.25rem' }}>• MacOS 10.15+</li>
+                <li style={{ marginBottom: '0.25rem' }}>• 4GB RAM minimum</li>
+                <li style={{ marginBottom: '0.25rem' }}>• 500MB free storage</li>
                 <li style={{ marginBottom: '0.25rem' }}>• Root access required</li>
               </ul>
             </div>
