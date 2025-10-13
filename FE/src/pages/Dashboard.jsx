@@ -5,7 +5,6 @@ import { Shield, Download, FileCheck, Key, Copy, Eye, EyeOff, AlertTriangle } fr
 function Dashboard() {
   const [showProductKey, setShowProductKey] = useState(false)
   const [copied, setCopied] = useState(false)
-  const [productKey, setProductKey] = useState('')
   const [totalWipes, setTotalWipes] = useState(0)
   const [certificatesIssued, setCertificatesIssued] = useState(0)
   const [recentCerts, setRecentCerts] = useState([])
@@ -23,7 +22,7 @@ function Dashboard() {
         const parsed = JSON.parse(cached)
         setMetrics((prev) => ({ ...prev, ...parsed }))
       }
-    } catch (_) {
+    } catch {
       // ignore storage errors
     }
 
@@ -39,17 +38,20 @@ function Dashboard() {
         if (!res.ok) return
         const data = await res.json()
         // Debug log to inspect exact API response shape during development
-        try { console.log('AUTH /me response:', data) } catch (_) {}
+        console.log('AUTH /me response:', data)
 
         // Normalize stats from possible shapes (keep it simple)
-        setTotalWipes(data?.userStats?.total_wipes ?? 0)
-        setCertificatesIssued(data?.userStats?.certificates_issued ?? 0)
-        setProductKey(data?.user?.product_key ?? '')
+        const newTotalWipes = data?.userStats?.total_wipes ?? 0
+        const newCertificatesIssued = data?.userStats?.certificates_issued ?? 0
+        const newProductKey = data?.user?.product_key ?? ''
+        
+        setTotalWipes(newTotalWipes)
+        setCertificatesIssued(newCertificatesIssued)
 
         const next = {
-          totalWipes,
-          productKey: typeof data?.user?.product_key === 'string' ? data.user.product_key : '',
-          certificatesIssued
+          totalWipes: newTotalWipes,
+          productKey: typeof newProductKey === 'string' ? newProductKey : '',
+          certificatesIssued: newCertificatesIssued
         }
         setMetrics(next)
 
@@ -72,10 +74,10 @@ function Dashboard() {
         setRecentCerts(normalizedCerts)
         try {
           localStorage.setItem('dashboardMetrics', JSON.stringify(next))
-        } catch (_) {
+        } catch {
           // ignore storage errors
         }
-      } catch (_) {
+      } catch {
         // silent fail; UI will show cached/defaults
       }
     }

@@ -63,7 +63,7 @@ function Verify() {
   setError('Certificate could not be verified.')
   setVerificationResult(null)
 }
-  } catch (err) {
+  } catch {
     setError('Verification failed. Please try again.')
     setVerificationResult(null)
   } finally {
@@ -102,7 +102,7 @@ function Verify() {
         }
 
         setVerificationResult(verificationResult)
-      } catch (err) {
+      } catch {
         setError('Invalid JSON certificate file')
       } finally {
         setIsVerifying(false)

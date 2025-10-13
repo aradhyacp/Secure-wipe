@@ -100,7 +100,7 @@ const handleSubmit = async (e) => {
     } else {
       setErrors({ submit: 'Signup failed. Please try again.' })
     }
-  } catch (error) {
+  } catch {
     setErrors({ submit: 'Signup failed. Please try again.' })
   } finally {
     setIsLoading(false)

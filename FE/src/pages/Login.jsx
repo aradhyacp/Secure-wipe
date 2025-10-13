@@ -95,7 +95,7 @@ const handleSubmit = async (e) => {
     } else {
       setErrors({ submit: 'Login failed. Please check your credentials.' })
     }
-  } catch (error) {
+  } catch {
     setErrors({ submit: 'Login failed. Please check your credentials.' })
   } finally {
     setIsLoading(false)
