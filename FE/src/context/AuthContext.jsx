@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useEffect, useState } from 'react'
 
 const AuthContext = createContext(null)
@@ -24,7 +25,7 @@ export const AuthProvider = ({ children }) => {
         setIsAuthenticated(true)
         setUser(JSON.parse(storedUser))
       }
-    } catch (_) {
+    } catch {
       // ignore storage errors
     } finally {
       setLoading(false)
@@ -39,7 +40,7 @@ export const AuthProvider = ({ children }) => {
       if (token) {
         localStorage.setItem('token', token)
       }
-    } catch (_) {
+    } catch {
       // ignore storage errors
     }
     setIsAuthenticated(true)
@@ -50,7 +51,7 @@ export const AuthProvider = ({ children }) => {
     try {
       localStorage.removeItem('token')
       localStorage.removeItem('user')
-    } catch (_) {
+    } catch {
       // ignore storage errors
     }
     setIsAuthenticated(false)
